@@ -27,8 +27,8 @@ HASTE = ("df_handbreaker4", "handbreaker4_long", "handbreaker", "df_piyofunjumps
          "modcomp019", "redemption", "r7_hui", "buttscar", "alkpotehasteweaps", "mistes_acr16", "bull_runner")
 
 # physics strings used for vql and pql args on rank and related functions
-PHYSICS_PQL_STRING = 'turbo'
-PHYSICS_VQL_STRING = 'classic'
+PHYSICS_PQL_STRING = 'pql'
+PHYSICS_VQL_STRING = 'vql'
 PHYSICS_STRINGS = [PHYSICS_VQL_STRING, PHYSICS_PQL_STRING]
 
 G_ONLY = (
