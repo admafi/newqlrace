@@ -549,8 +549,6 @@ class race(minqlx.Plugin):
 
     def cmd_pb(self, player, msg, channel):
         """Outputs the player's personal best time for a map."""
-        channel.reply(type(msg))
-        channel.reply(msg)
 
         @minqlx.thread
         def pb(map_name, mode=None):
@@ -581,7 +579,7 @@ class race(minqlx.Plugin):
                 map_prefix = msg[1]
                 physics = msg[2]
             else:
-                physics=None
+                physics = None
                 map_prefix = self.game.map.lower()
         else:
             return minqlx.RET_USAGE
