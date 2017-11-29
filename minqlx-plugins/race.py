@@ -16,12 +16,6 @@ import time
 PARAMS = ({}, {"weapons": "false"}, {"physics": "classic"}, {"physics": "classic", "weapons": "false"})
 OLDTOP_URL = "https://cdn.rawgit.com/QLRace/oldtop/master/oldtop/"
 
-# physics strings used for vql and pql args on rank and related functions
-PHYSICS_PQL_STRING = 'turbo'
-PHYSICS_VQL_STRING = 'classic'
-PHYSICS_STRINGS = [PHYSICS_VQL_STRING, PHYSICS_PQL_STRING]
-
-
 GOTO_DISABLED = ("ndql", "bounce", "df_coldrun", "wernerjump", "puzzlemap", "track_comp", "track_comp_barriers",
                  "track_comp_weap", "gl", "10towers", "acc_donut")
 HASTE = ("df_handbreaker4", "handbreaker4_long", "handbreaker", "df_piyofunjumps", "funjumpsmap", "df_luna", "insane1",
@@ -31,6 +25,11 @@ HASTE = ("df_handbreaker4", "handbreaker4_long", "handbreaker", "df_piyofunjumps
          "snorjumpb1", "snorjump2", "piyojump2", "woftct", "apex", "runkull", "snakejumps2", "applejump_b1",
          "zerojumps_b1", "bumblbee", "r7_golem", "r7_endless", "mj_xlarve", "airmaxjumps2", "alexjumps", "brokenrun",
          "modcomp019", "redemption", "r7_hui", "buttscar", "alkpotehasteweaps", "mistes_acr16", "bull_runner")
+
+# physics strings used for vql and pql args on rank and related functions
+PHYSICS_PQL_STRING = 'turbo'
+PHYSICS_VQL_STRING = 'classic'
+PHYSICS_STRINGS = [PHYSICS_VQL_STRING, PHYSICS_PQL_STRING]
 
 G_ONLY = (
     "k4n", "ndql", "dfwc_xlarve", "kairos_jackson", "acc_donut", "concentration", "l1thrun", "gnj_torture4", "glados",
@@ -237,6 +236,8 @@ class race(minqlx.Plugin):
             self.set_cvar("pmove_noPlayerClip", "1")
             self.set_cvar("g_knockback_gl_self", "1.10")
             self.set_cvar("g_knockback_pg_self", "1.3")
+            self.set_cvar("g_battlesuitDampen", "0.25")
+            self.set_cvar("g_startinghealthbonus", "0")
 
     def set_starting_weapons(self, map_name):
         if map_name in G_AND_MG:
@@ -840,305 +841,323 @@ class race(minqlx.Plugin):
             strafe = ""
         avg()
 
-    @minqlx.thread
-    def cmd_random_map(self, player, msg, channel):
-        """Display msg[1] number of random maps and show the number of records on them for the current physics mode (strafe and weapons)"""
-        # Determine number of random maps to show, max 5 min 1
-        number_of_maps = 3
-        if msg and len(msg) == 2:
-            try:
-                number_of_maps = int(msg[1])
-                if number_of_maps > 5:
-                    number_of_maps = 5
-                elif number_of_maps < 0:
-                    number_of_maps = 3
-            except ValueError:
-                pass
-        # Get 5 random maps names and create data structure to store record counts
-        maps = {_map: {} for _map in random.sample(self.maps, number_of_maps)}
-        # Get current physics modes
-        weapons_mode = self.get_cvar('qlx_raceMode', int)
-        strafe_mode = weapons_mode + 1
-        # Get the number of strafe and weapon records for each map for the current physics modes
-        for _map in maps.keys():
-            try:
-                # Get weapons records
-                data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
-                                         params=PARAMS[weapons_mode]).json()
-                maps[_map]['weapons'] = len(data_json['records'])
-                # Get strafe records
-                data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
-                                         params=PARAMS[strafe_mode]).json()
-                maps[_map]['strafe'] = len(data_json['records'])
-            except requests.exceptions.RequestException as e:
-                # qlrace.com api unreachable
-                self.logger.error(e)
-                return
-        # Display a header
-        # Display the results
-        channel.reply('^3map^1(strafe/weapons)^7: ' + ' ^7| '.join(["^3{} ^1({}/{})".format(_map,
-                                                                                            record_counts['strafe'],
-                                                                                            record_counts['weapons'])
-                                                                    for _map, record_counts in maps.items()]))
-
-    def cmd_recent(self, player, msg, channel):
-        """Outputs the most recent maps from QLRace.com"""
-
         @minqlx.thread
-        def recent():
-            """API Doc: https://qlrace.com/apidoc/1.0/Maps/maps.html"""
-            try:
-                data = requests.get("https://qlrace.com/api/maps?sort=recent").json()
-            except requests.exceptions.RequestException as e:
-                self.logger.error(e)
-                return
-
-            maps = '^7, ^3'.join(data["maps"][:amount])
-            channel.reply("Most recent maps(by first record date): ^3{}".format(maps))
-
-        amount = 10
-        if len(msg) == 2:
-            try:
-                amount = int(msg[1])
-                if not (0 <= amount <= 30):
-                    raise ValueError
-            except ValueError:
-                player.tell("amount must be positive integer <= 30")
-                return minqlx.RET_STOP_ALL
-        elif len(msg) > 2:
-            return minqlx.RET_USAGE
-        recent()
-
-    def cmd_goto(self, player, msg, channel):
-        """Go to a player's location.
-        Player needs to kill themselves/rejoin for a time to count."""
-        map_name = self.game.map.lower()
-        if map_name in GOTO_DISABLED:
-            player.tell("^1!goto is disabled on {}".format(map_name))
-            return minqlx.RET_STOP_ALL
-
-        if len(msg) == 2:
-            try:
-                i = int(msg[1])
-                target_player = self.player(i)
-                if not (0 <= i < 64) or not target_player or not self.player(i).is_alive or i == player.id:
-                    raise ValueError
-            except ValueError:
-                player.tell("Invalid ID.")
-                return minqlx.RET_STOP_ALL
-            except minqlx.NonexistentPlayerError:
-                player.tell("Invalid ID.")
-                return minqlx.RET_STOP_ALL
-        elif len(msg) != 2:
-            return minqlx.RET_USAGE
-
-        if player.team == "spectator":
-            if 'spec_delay' in self.plugins and player.steam_id in self.plugins['spec_delay'].spec_delays:
-                player.tell("^6You must wait 15 seconds before joining after spectating")
-                return minqlx.RET_STOP_ALL
-
-            self.move_player[player.steam_id] = target_player.state.position
-            player.team = "free"
-        else:
-            player.score = 2147483647
-            self.move_player[player.steam_id] = target_player.state.position
-            minqlx.player_spawn(player.id)  # respawn player so he can't cheat
-
-    def cmd_savepos(self, player, msg, channel):
-        """Saves current position."""
-        if player.team != "spectator":
-            # add player to savepos dict
-            self.savepos[player.steam_id] = player.state.position
-            player.tell("^6Position saved. Your time won't count if you use !loadpos, unless you kill yourself.")
-        else:
-            player.tell("Can't save position as spectator.")
-        return minqlx.RET_STOP_ALL
-
-    def cmd_loadpos(self, player, msg, channel):
-        """Loads saved position."""
-        if self.game.map.lower() in GOTO_DISABLED:
-            player.tell("^1!loadpos is disabled on {}".format(self.game.map))
-            return minqlx.RET_STOP_ALL
-
-        if player.team != "spectator":
-            if player.steam_id in self.savepos:
-                player.score = 2147483647
-                self.move_player[player.steam_id] = self.savepos[player.steam_id]
-                minqlx.player_spawn(player.id)  # respawn player so he can't cheat
-            else:
-                player.tell("^1You have to save your position first.")
-        else:
-            player.tell("^1Can't load position as spectator.")
-        return minqlx.RET_STOP_ALL
-
-    def cmd_maps(self, player, msg, channel):
-        """Tells player all the maps which have a record on QLRace.com.
-        Outputs in 4 columns so you are not spammed with 450+ lines in console."""
-
-        @minqlx.thread
-        def output_maps():
-            for i, (a, b, c, d) in enumerate(zip(maps[::4], maps[1::4], maps[2::4], maps[3::4])):
-                if (i + 1) % 26 == 0:
-                    time.sleep(0.4)
-                player.tell('{:<23} {:<23} {:<23} {:<}'.format(a, b, c, d))
-
-        if len(msg) <= 1:
-            maps = self.maps
-        else:
-            maps = [x for x in self.maps if x.startswith(msg[1].lower())]
-            if not maps:
-                player.tell("^6There is no maps which match that prefix.")
-                return minqlx.RET_STOP_ALL
-        output_maps()
-        return minqlx.RET_STOP_ALL
-
-    def cmd_haste(self, player, msg, channel):
-        """Gives/removes haste on haste maps."""
-        if player.team == "spectator":
-            player.tell("^1You cannot use ^3{} ^1as a spectator!".format(msg[0]))
-            return minqlx.RET_STOP_ALL
-
-        if self.game.map.lower() in HASTE:
-            duration = 0 if "remove" in msg[0].lower() else 999999
-            player.powerups(haste=duration)
-        else:
-            player.tell("^1You cannot use ^3{} ^1on non haste maps.".format(msg[0]))
-        return minqlx.RET_STOP_ALL
-
-    def cmd_timer(self, player, msg, channel):
-        """Starts/stops personal timer."""
-        if player.team == "spectator":
-            player.tell("^1You need to join the game to use this command.")
-        else:
-            if msg[0].startswith("!stop"):
+        def cmd_random_map(self, player, msg, channel):
+            """Display msg[1] number of random maps and show the number of records on them for the current physics mode (strafe and weapons)"""
+            # Determine number of random maps to show, max 5 min 1
+            number_of_maps = 3
+            if msg and len(msg) == 2:
                 try:
-                    del self.frame[player.steam_id]
-                except KeyError:
-                    player.tell("^1There is no timer started.")
-            else:
-                self.frame[player.steam_id] = self.current_frame
-        return minqlx.RET_STOP_ALL
+                    number_of_maps = int(msg[1])
+                    if number_of_maps > 5:
+                        number_of_maps = 5
+                    elif number_of_maps < 0:
+                        number_of_maps = 3
+                except ValueError:
+                    pass
+            # Get 5 random maps names and create data structure to store record counts
+            maps = {_map: {} for _map in random.sample(self.maps, number_of_maps)}
+            # Get current physics modes
+            weapons_mode = self.get_cvar('qlx_raceMode', int)
+            strafe_mode = weapons_mode + 1
+            # Get the number of strafe and weapon records for each map for the current physics modes
+            for _map in maps.keys():
+                try:
+                    # Get weapons records
+                    data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
+                                             params=PARAMS[weapons_mode]).json()
+                    maps[_map]['weapons'] = len(data_json['records'])
+                    # Get strafe records
+                    data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
+                                             params=PARAMS[strafe_mode]).json()
+                    maps[_map]['strafe'] = len(data_json['records'])
+                except requests.exceptions.RequestException as e:
+                    # qlrace.com api unreachable
+                    self.logger.error(e)
+                    return
+            # Display a header
+            # Display the results
+            channel.reply('^3map^1(strafe/weapons)^7: ' + ' ^7| '.join(["^3{} ^1({}/{})".format(_map,
+                                                                                                record_counts['strafe'],
+                                                                                                record_counts[
+                                                                                                    'weapons'])
+                                                                        for _map, record_counts in maps.items()]))
 
-    def cmd_reset(self, player, msg, channel):
-        """Resets a players time in race. It is for when you
-        complete a strafe time and you don't want it to save."""
-        if player.team == "spectator":
-            player.tell("^1You need to join the game to use this command.")
-        else:
-            player.score = 2147483647
-            player.tell("Your score(time) was reset.")
 
-    def cmd_commands(self, player, msg, channel):
-        """Outputs list of race commands."""
-        channel.reply("Commands: ^3!(s)pb !(s)rank !(s)top !old(s)top !(s)all !(s)ranktime !(s)avg !randommap !recent")
-        channel.reply("^3!goto !savepos !loadpos !maps !haste !removehaste !timer !stoptimer")
-        return minqlx.RET_STOP_ALL
-
-    def output_times(self, map_name, times, channel):
-        """Outputs times to the channel. Will split lines
-        so that each record is on one line only.
-        :param map_name: Map name
-        :param times: List of map times
-        :param channel: Channel to reply to
-        """
-        output = ["^2{}:".format(map_name)]
-        for time in times:
-            if len(output[len(output) - 1]) + len(time) < 100:
-                output[len(output) - 1] += time
-            else:
-                output.append(time)
-
-        for out in output:
-            channel.reply(out.lstrip())
+def cmd_recent(self, player, msg, channel):
+    """Outputs the most recent maps from QLRace.com"""
 
     @minqlx.thread
-    def get_maps(self):
-        """Gets the list of race maps from QLRace.com and
-        adds current map to the list if it isn't already.
-        API Doc: https://qlrace.com/apidoc/1.0/Maps/maps.html
-        """
+    def recent():
+        """API Doc: https://qlrace.com/apidoc/1.0/Maps/maps.html"""
         try:
-            self.maps = requests.get("https://qlrace.com/api/maps").json()["maps"]
-            self.old_maps = requests.get("{}/maps.json".format(OLDTOP_URL)).json()["maps"]
+            data = requests.get("https://qlrace.com/api/maps?sort=recent").json()
         except requests.exceptions.RequestException as e:
             self.logger.error(e)
+            return
 
-        current_map = self.game.map.lower()
-        if current_map not in self.maps:
-            self.maps.append(current_map)
+        maps = '^7, ^3'.join(data["maps"][:amount])
+        channel.reply("Most recent maps(by first record date): ^3{}".format(maps))
 
-    def map_prefix(self, map_prefix, old=False):
-        """Returns the first map which matches the prefix.
-        :param map_prefix: Prefix of a map
-        :param old: Optional, whether to use old maps list.
-        """
-        if old:
-            maps = self.old_maps
+    amount = 10
+    if len(msg) == 2:
+        try:
+            amount = int(msg[1])
+            if not (0 <= amount <= 30):
+                raise ValueError
+        except ValueError:
+            player.tell("amount must be positive integer <= 30")
+            return minqlx.RET_STOP_ALL
+    elif len(msg) > 2:
+        return minqlx.RET_USAGE
+    recent()
+
+
+def cmd_goto(self, player, msg, channel):
+    """Go to a player's location.
+    Player needs to kill themselves/rejoin for a time to count."""
+    map_name = self.game.map.lower()
+    if map_name in GOTO_DISABLED:
+        player.tell("^1!goto is disabled on {}".format(map_name))
+        return minqlx.RET_STOP_ALL
+
+    if len(msg) == 2:
+        try:
+            i = int(msg[1])
+            target_player = self.player(i)
+            if not (0 <= i < 64) or not target_player or not self.player(i).is_alive or i == player.id:
+                raise ValueError
+        except ValueError:
+            player.tell("Invalid ID.")
+            return minqlx.RET_STOP_ALL
+        except minqlx.NonexistentPlayerError:
+            player.tell("Invalid ID.")
+            return minqlx.RET_STOP_ALL
+    elif len(msg) != 2:
+        return minqlx.RET_USAGE
+
+    if player.team == "spectator":
+        if 'spec_delay' in self.plugins and player.steam_id in self.plugins['spec_delay'].spec_delays:
+            player.tell("^6You must wait 15 seconds before joining after spectating")
+            return minqlx.RET_STOP_ALL
+
+        self.move_player[player.steam_id] = target_player.state.position
+        player.team = "free"
+    else:
+        player.score = 2147483647
+        self.move_player[player.steam_id] = target_player.state.position
+        minqlx.player_spawn(player.id)  # respawn player so he can't cheat
+
+
+def cmd_savepos(self, player, msg, channel):
+    """Saves current position."""
+    if player.team != "spectator":
+        # add player to savepos dict
+        self.savepos[player.steam_id] = player.state.position
+        player.tell("^6Position saved. Your time won't count if you use !loadpos, unless you kill yourself.")
+    else:
+        player.tell("Can't save position as spectator.")
+    return minqlx.RET_STOP_ALL
+
+
+def cmd_loadpos(self, player, msg, channel):
+    """Loads saved position."""
+    if self.game.map.lower() in GOTO_DISABLED:
+        player.tell("^1!loadpos is disabled on {}".format(self.game.map))
+        return minqlx.RET_STOP_ALL
+
+    if player.team != "spectator":
+        if player.steam_id in self.savepos:
+            player.score = 2147483647
+            self.move_player[player.steam_id] = self.savepos[player.steam_id]
+            minqlx.player_spawn(player.id)  # respawn player so he can't cheat
         else:
-            maps = self.maps
+            player.tell("^1You have to save your position first.")
+    else:
+        player.tell("^1Can't load position as spectator.")
+    return minqlx.RET_STOP_ALL
 
-        if map_prefix.lower() in maps:
-            return map_prefix.lower()
 
-        return next((x for x in maps if x.startswith(map_prefix.lower())), None)
+def cmd_maps(self, player, msg, channel):
+    """Tells player all the maps which have a record on QLRace.com.
+    Outputs in 4 columns so you are not spammed with 450+ lines in console."""
 
-    def get_map_name_weapons(self, map_prefix, command, channel):
-        """Returns map name and weapons boolean.
-        :param map_prefix: Prefix of a map
-        :param command: Command the player entered
-        :param channel: Channel to reply to.
-        """
-        map_name = self.map_prefix(map_prefix)
-        if not map_name:
-            channel.reply("^2No map found for ^3{}. ^2If this is wrong, ^6!updatemaps".format(map_prefix))
-            return minqlx.RET_STOP_EVENT
-        weapons = False if command[1].lower() == "s" else True
-        return map_name, weapons
+    @minqlx.thread
+    def output_maps():
+        for i, (a, b, c, d) in enumerate(zip(maps[::4], maps[1::4], maps[2::4], maps[3::4])):
+            if (i + 1) % 26 == 0:
+                time.sleep(0.4)
+            player.tell('{:<23} {:<23} {:<23} {:<}'.format(a, b, c, d))
 
-    def get_records(self, map_name, weapons, mode=None):
-        """Returns race records from QLRace.com
-        :param map_name: Map name
-        :param weapons: Weapons boolean
-        :param mode: If not None use this arg as the mode instead of the current mode
-        """
-        if mode:
-            return RaceRecords(map_name, mode)
-        elif weapons:
-            mode = self.get_cvar("qlx_raceMode", int)
-            return RaceRecords(map_name, mode)
+    if len(msg) <= 1:
+        maps = self.maps
+    else:
+        maps = [x for x in self.maps if x.startswith(msg[1].lower())]
+        if not maps:
+            player.tell("^6There is no maps which match that prefix.")
+            return minqlx.RET_STOP_ALL
+    output_maps()
+    return minqlx.RET_STOP_ALL
+
+
+def cmd_haste(self, player, msg, channel):
+    """Gives/removes haste on haste maps."""
+    if player.team == "spectator":
+        player.tell("^1You cannot use ^3{} ^1as a spectator!".format(msg[0]))
+        return minqlx.RET_STOP_ALL
+
+    if self.game.map.lower() in HASTE:
+        duration = 0 if "remove" in msg[0].lower() else 999999
+        player.powerups(haste=duration)
+    else:
+        player.tell("^1You cannot use ^3{} ^1on non haste maps.".format(msg[0]))
+    return minqlx.RET_STOP_ALL
+
+
+def cmd_timer(self, player, msg, channel):
+    """Starts/stops personal timer."""
+    if player.team == "spectator":
+        player.tell("^1You need to join the game to use this command.")
+    else:
+        if msg[0].startswith("!stop"):
+            try:
+                del self.frame[player.steam_id]
+            except KeyError:
+                player.tell("^1There is no timer started.")
         else:
-            mode = self.get_cvar("qlx_raceMode", int) + 1
-            return RaceRecords(map_name, mode)
+            self.frame[player.steam_id] = self.current_frame
+    return minqlx.RET_STOP_ALL
 
-    def brand_map(self, map_name):
-        """Brands map title with "<qlx_raceBrand> - map name".
-        :param map_name: Current map
-        """
-        brand_map = "{} - {}".format(self.get_cvar("qlx_raceBrand"), map_name)
-        minqlx.set_configstring(3, brand_map)
 
-    @staticmethod
-    def time_ms(time_string):
-        """Returns time in milliseconds.
-        :param time_string: Time as a string, examples 2.300, 1:12.383
-        """
-        minutes, seconds = (["0"] + time_string.split(":"))[-2:]
-        return int(60000 * int(minutes) + round(1000 * float(seconds)))
+def cmd_reset(self, player, msg, channel):
+    """Resets a players time in race. It is for when you
+    complete a strafe time and you don't want it to save."""
+    if player.team == "spectator":
+        player.tell("^1You need to join the game to use this command.")
+    else:
+        player.score = 2147483647
+        player.tell("Your score(time) was reset.")
 
-    @staticmethod
-    def time_string(time):
-        """Returns a time string in the format s.ms or m:s.ms if time is more than
-        or equal to 1 minute.
-        :param time: Time in milliseconds
-        """
-        time = int(time)
-        s, ms = divmod(time, 1000)
-        ms = str(ms).zfill(3)
-        if s < 60:
-            return "{}.{}".format(s, ms)
-        m, s = divmod(s, 60)
-        s = str(s).zfill(2)
-        return "{}:{}.{}".format(m, s, ms)
+
+def cmd_commands(self, player, msg, channel):
+    """Outputs list of race commands."""
+    channel.reply("Commands: ^3!(s)pb !(s)rank !(s)top !old(s)top !(s)all !(s)ranktime !(s)avg !randommap !recent")
+    channel.reply("^3!goto !savepos !loadpos !maps !haste !removehaste !timer !stoptimer")
+    return minqlx.RET_STOP_ALL
+
+
+def output_times(self, map_name, times, channel):
+    """Outputs times to the channel. Will split lines
+    so that each record is on one line only.
+    :param map_name: Map name
+    :param times: List of map times
+    :param channel: Channel to reply to
+    """
+    output = ["^2{}:".format(map_name)]
+    for time in times:
+        if len(output[len(output) - 1]) + len(time) < 100:
+            output[len(output) - 1] += time
+        else:
+            output.append(time)
+
+    for out in output:
+        channel.reply(out.lstrip())
+
+
+@minqlx.thread
+def get_maps(self):
+    """Gets the list of race maps from QLRace.com and
+    adds current map to the list if it isn't already.
+    API Doc: https://qlrace.com/apidoc/1.0/Maps/maps.html
+    """
+    try:
+        self.maps = requests.get("https://qlrace.com/api/maps").json()["maps"]
+        self.old_maps = requests.get("{}/maps.json".format(OLDTOP_URL)).json()["maps"]
+    except requests.exceptions.RequestException as e:
+        self.logger.error(e)
+
+    current_map = self.game.map.lower()
+    if current_map not in self.maps:
+        self.maps.append(current_map)
+
+
+def map_prefix(self, map_prefix, old=False):
+    """Returns the first map which matches the prefix.
+    :param map_prefix: Prefix of a map
+    :param old: Optional, whether to use old maps list.
+    """
+    if old:
+        maps = self.old_maps
+    else:
+        maps = self.maps
+
+    if map_prefix.lower() in maps:
+        return map_prefix.lower()
+
+    return next((x for x in maps if x.startswith(map_prefix.lower())), None)
+
+
+def get_map_name_weapons(self, map_prefix, command, channel):
+    """Returns map name and weapons boolean.
+    :param map_prefix: Prefix of a map
+    :param command: Command the player entered
+    :param channel: Channel to reply to.
+    """
+    map_name = self.map_prefix(map_prefix)
+    if not map_name:
+        channel.reply("^2No map found for ^3{}. ^2If this is wrong, ^6!updatemaps".format(map_prefix))
+        return minqlx.RET_STOP_EVENT
+    weapons = False if command[1].lower() == "s" else True
+    return map_name, weapons
+
+
+def get_records(self, map_name, weapons, mode=None):
+    """Returns race records from QLRace.com
+    :param map_name: Map name
+    :param weapons: Weapons boolean
+    :param mode: If not None use this arg as the mode instead of the current mode
+    """
+    if mode:
+        return RaceRecords(map_name, mode)
+    elif weapons:
+        mode = self.get_cvar("qlx_raceMode", int)
+        return RaceRecords(map_name, mode)
+    else:
+        mode = self.get_cvar("qlx_raceMode", int) + 1
+        return RaceRecords(map_name, mode)
+
+
+def brand_map(self, map_name):
+    """Brands map title with "<qlx_raceBrand> - map name".
+    :param map_name: Current map
+    """
+    brand_map = "{} - {}".format(self.get_cvar("qlx_raceBrand"), map_name)
+    minqlx.set_configstring(3, brand_map)
+
+
+@staticmethod
+def time_ms(time_string):
+    """Returns time in milliseconds.
+    :param time_string: Time as a string, examples 2.300, 1:12.383
+    """
+    minutes, seconds = (["0"] + time_string.split(":"))[-2:]
+    return int(60000 * int(minutes) + round(1000 * float(seconds)))
+
+
+@staticmethod
+def time_string(time):
+    """Returns a time string in the format s.ms or m:s.ms if time is more than
+    or equal to 1 minute.
+    :param time: Time in milliseconds
+    """
+    time = int(time)
+    s, ms = divmod(time, 1000)
+    ms = str(ms).zfill(3)
+    if s < 60:
+        return "{}.{}".format(s, ms)
+    m, s = divmod(s, 60)
+    s = str(s).zfill(2)
+    return "{}:{}.{}".format(m, s, ms)
 
 
 class RaceRecords:
