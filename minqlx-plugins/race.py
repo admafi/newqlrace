@@ -549,6 +549,8 @@ class race(minqlx.Plugin):
 
     def cmd_pb(self, player, msg, channel):
         """Outputs the player's personal best time for a map."""
+        channel.reply(type(msg))
+        channel.reply(msg)
 
         @minqlx.thread
         def pb(map_name, mode=None):
