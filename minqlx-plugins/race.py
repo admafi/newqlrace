@@ -567,14 +567,20 @@ class race(minqlx.Plugin):
         elif len(msg) == 2:
             if msg[1].lower() not in PHYSICS_STRINGS:
                 map_prefix = msg[1]
-                physics = self.get_cvar('qlx_raceMode', int)
+                physics = None
+            else:
+                physics = msg[1],
+                map_prefix = self.game.map.lower()
         elif len(msg) == 3:
             if msg[1].lower() in PHYSICS_STRINGS and msg[2].lower() not in PHYSICS_STRINGS:
                 map_prefix = msg[2]
                 physics = msg[1]
-            elif msg[1].lower() not in PHYSICS_STRINGS and msg[2].lower in PHYSICS_STRINGS:
+            elif msg[1].lower() not in PHYSICS_STRINGS and msg[2].lower() in PHYSICS_STRINGS:
                 map_prefix = msg[1]
                 physics = msg[2]
+            else:
+                physics=None
+                map_prefix = self.game.map.lower()
         else:
             return minqlx.RET_USAGE
 
