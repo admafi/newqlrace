@@ -857,7 +857,7 @@ class race(minqlx.Plugin):
                 number_of_maps = int(msg[1])
                 if number_of_maps > 5:
                     number_of_maps = 5
-                elif number_of_maps < 0:
+                elif number_of_maps <= 0:
                     number_of_maps = 3
             except ValueError:
                 pass
