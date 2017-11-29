@@ -841,47 +841,47 @@ class race(minqlx.Plugin):
             strafe = ""
         avg()
 
-        @minqlx.thread
-        def cmd_random_map(self, player, msg, channel):
-            """Display msg[1] number of random maps and show the number of records on them for the current physics mode (strafe and weapons)"""
-            # Determine number of random maps to show, max 5 min 1
-            number_of_maps = 3
-            if msg and len(msg) == 2:
-                try:
-                    number_of_maps = int(msg[1])
-                    if number_of_maps > 5:
-                        number_of_maps = 5
-                    elif number_of_maps < 0:
-                        number_of_maps = 3
-                except ValueError:
-                    pass
-            # Get 5 random maps names and create data structure to store record counts
-            maps = {_map: {} for _map in random.sample(self.maps, number_of_maps)}
-            # Get current physics modes
-            weapons_mode = self.get_cvar('qlx_raceMode', int)
-            strafe_mode = weapons_mode + 1
-            # Get the number of strafe and weapon records for each map for the current physics modes
-            for _map in maps.keys():
-                try:
-                    # Get weapons records
-                    data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
-                                             params=PARAMS[weapons_mode]).json()
-                    maps[_map]['weapons'] = len(data_json['records'])
-                    # Get strafe records
-                    data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
-                                             params=PARAMS[strafe_mode]).json()
-                    maps[_map]['strafe'] = len(data_json['records'])
-                except requests.exceptions.RequestException as e:
-                    # qlrace.com api unreachable
-                    self.logger.error(e)
-                    return
-            # Display a header
-            # Display the results
-            channel.reply('^3map^1(strafe/weapons)^7: ' + ' ^7| '.join(["^3{} ^1({}/{})".format(_map,
-                                                                                                record_counts['strafe'],
-                                                                                                record_counts[
-                                                                                                    'weapons'])
-                                                                        for _map, record_counts in maps.items()]))
+    @minqlx.thread
+    def cmd_random_map(self, player, msg, channel):
+        """Display msg[1] number of random maps and show the number of records on them for the current physics mode (strafe and weapons)"""
+        # Determine number of random maps to show, max 5 min 1
+        number_of_maps = 3
+        if msg and len(msg) == 2:
+            try:
+                number_of_maps = int(msg[1])
+                if number_of_maps > 5:
+                    number_of_maps = 5
+                elif number_of_maps < 0:
+                    number_of_maps = 3
+            except ValueError:
+                pass
+        # Get 5 random maps names and create data structure to store record counts
+        maps = {_map: {} for _map in random.sample(self.maps, number_of_maps)}
+        # Get current physics modes
+        weapons_mode = self.get_cvar('qlx_raceMode', int)
+        strafe_mode = weapons_mode + 1
+        # Get the number of strafe and weapon records for each map for the current physics modes
+        for _map in maps.keys():
+            try:
+                # Get weapons records
+                data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
+                                         params=PARAMS[weapons_mode]).json()
+                maps[_map]['weapons'] = len(data_json['records'])
+                # Get strafe records
+                data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
+                                         params=PARAMS[strafe_mode]).json()
+                maps[_map]['strafe'] = len(data_json['records'])
+            except requests.exceptions.RequestException as e:
+                # qlrace.com api unreachable
+                self.logger.error(e)
+                return
+        # Display a header
+        # Display the results
+        channel.reply('^3map^1(strafe/weapons)^7: ' + ' ^7| '.join(["^3{} ^1({}/{})".format(_map,
+                                                                                            record_counts['strafe'],
+                                                                                            record_counts[
+                                                                                                'weapons'])
+                                                                    for _map, record_counts in maps.items()]))
 
 
 def cmd_recent(self, player, msg, channel):
