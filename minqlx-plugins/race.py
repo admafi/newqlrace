@@ -938,7 +938,7 @@ class race(minqlx.Plugin):
             return minqlx.RET_USAGE
         else:
             try:
-                map_id = int(msg[1])
+                map_id = int(msg[1]) - 1
                 if map_id < 0 or map_id >= len(self.random_maps):
                     raise ValueError
                 # Valid map id -> call the vote
