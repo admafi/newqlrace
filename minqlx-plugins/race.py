@@ -107,7 +107,7 @@ class race(minqlx.Plugin):
         self.add_command(("timer", "starttimer", "stoptimer"), self.cmd_timer)
         self.add_command(("reset", "resettime", "resetscore"), self.cmd_reset)
         self.add_command(("commands", "cmds", "help"), self.cmd_commands, priority=minqlx.PRI_HIGH)
-        self.add_command("vote", self.cmd_vote_random_map)
+        self.add_command("choose", self.cmd_vote_random_map, usage="<n>")
 
         self.set_cvar_once("qlx_raceMode", "0")  # 0 = Turbo/PQL, 2 = Classic/VQL
         self.set_cvar_once("qlx_raceBrand", "QLRace.com")  # Can set to "" to not brand
@@ -927,22 +927,25 @@ class race(minqlx.Plugin):
         avg(player, mode)
 
     def cmd_vote_random_map(self, player, msg, channel):
-        """Usage: !vote <n> where n is the map number displayed next to the map by cmd_random_map
+        """Usage: !choose <n> where n is the map number displayed next to the map by cmd_random_map
         Only does something after cmd_random_map has been called at least once
         Votes the map name indicated by <n> by randommap"""
         if not self.random_maps:
             channel.reply('^7Use !randommap first.')
         elif len(msg) == 1:
-            channel.reply('^7Usage: !vote <n>')
+            return minqlx.RET_USAGE
         else:
             try:
                 map_id = int(msg[1])
-                if map_id < 0 or map_id > len(self.random_maps):
+                if map_id < 0 or map_id >= len(self.random_maps):
                     raise ValueError
                 # Valid map id -> call the vote
+                channel.reply("cv map {}".format(self.random_maps[map_id]))
+                channel.reply(self.random_maps)
+                channel.reply(map_id)
                 minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
             except ValueError:
-                channel.reply('^7Usage: !vote <n>')
+                return minqlx.RET_USAGE
 
     @minqlx.thread
     def cmd_random_map(self, player, msg, channel):
