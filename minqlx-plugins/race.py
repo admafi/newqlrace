@@ -928,7 +928,6 @@ class race(minqlx.Plugin):
             strafe = ""
         avg(player, mode)
 
-    @minqlx.thread
     def cmd_vote_random_map(self, player, msg, channel):
         """Usage: !choose <n> where n is the map number displayed next to the map by cmd_random_map
         Only does something after cmd_random_map has been called at least once
@@ -968,7 +967,7 @@ class race(minqlx.Plugin):
         elif len(msg) > 2 and len(msg) != 1:
             return minqlx.RET_USAGE
         # Get random map names and create data structure to store record counts
-        maps = {_map: {} for _map in random.sample(self.maps, number_of_maps)}
+        maps = {_map.lower(): {} for _map in random.sample(self.maps, number_of_maps)}
         # Get current physics modes
         weapons_mode = self.get_cvar('qlx_raceMode', int)
         strafe_mode = weapons_mode + 1
