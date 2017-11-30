@@ -550,11 +550,11 @@ class race(minqlx.Plugin):
 
     def cmd_pb(self, player, msg, channel):
         """Outputs the player's personal best time for a map."""
-
         @minqlx.thread
         def pb(map_name, mode=None, weapons=None, physics=None):
             records = self.get_records(map_name, weapons, mode)
             rank, time = records.pb(player.steam_id)
+            channel.reply('^7map:{} mode:{} weps:{} phys:{}'.format(map_name, mode, weapons, physics))
             if not weapons:
                 map_name += "^2(strafe)"
             if physics:
@@ -580,7 +580,7 @@ class race(minqlx.Plugin):
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
         mode = self.weapons_physics_to_mode(weapons, physics)
-        channel.reply('map:{} weps:{} physics:{} mode:{}'.format(map_name, weapons, physics, mode))
+        channel.reply('^7map:{} weps:{} physics:{} mode:{}'.format(map_name, weapons, physics, mode))
         pb(map_name, mode, weapons, physics)
 
     @staticmethod
