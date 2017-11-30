@@ -928,6 +928,7 @@ class race(minqlx.Plugin):
             strafe = ""
         avg(player, mode)
 
+    @minqlx.thread
     def cmd_vote_random_map(self, player, msg, channel):
         """Usage: !choose <n> where n is the map number displayed next to the map by cmd_random_map
         Only does something after cmd_random_map has been called at least once
@@ -1026,7 +1027,6 @@ class race(minqlx.Plugin):
         elif len(msg) > 2:
             return minqlx.RET_USAGE
         recent()
-
 
     def cmd_goto(self, player, msg, channel):
         """Go to a player's location.
