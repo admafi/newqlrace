@@ -28,8 +28,10 @@ HASTE = ("df_handbreaker4", "handbreaker4_long", "handbreaker", "df_piyofunjumps
 
 # physics strings used for vql and pql args on rank and related functions
 PHYSICS_PQL_STRING = 'pql'
+PHYSICS_TURBO_STRING = 'turbo'
 PHYSICS_VQL_STRING = 'vql'
-PHYSICS_STRINGS = [PHYSICS_VQL_STRING, PHYSICS_PQL_STRING]
+PHYSICS_CLASSIC_STRING = 'classic'
+PHYSICS_STRINGS = [PHYSICS_VQL_STRING, PHYSICS_PQL_STRING, PHYSICS_TURBO_STRING, PHYSICS_CLASSIC_STRING]
 
 G_ONLY = (
     "k4n", "ndql", "dfwc_xlarve", "kairos_jackson", "acc_donut", "concentration", "l1thrun", "gnj_torture4", "glados",
@@ -587,13 +589,13 @@ class race(minqlx.Plugin):
     @staticmethod
     def weapons_physics_to_mode(weapons, physics):
         """Convert weapons bool and physics string to mode int"""
-        if weapons and physics == PHYSICS_VQL_STRING:
+        if weapons and physics in [PHYSICS_VQL_STRING, PHYSICS_CLASSIC_STRING]:
             return 2
-        elif weapons and physics == PHYSICS_PQL_STRING:
+        elif weapons and physics in [PHYSICS_PQL_STRING, PHYSICS_TURBO_STRING]:
             return 0
-        elif not weapons and physics == PHYSICS_VQL_STRING:
+        elif not weapons and physics in [PHYSICS_VQL_STRING, PHYSICS_CLASSIC_STRING]:
             return 3
-        elif not weapons and physics == PHYSICS_PQL_STRING:
+        elif not weapons and physics in [PHYSICS_PQL_STRING, PHYSICS_TURBO_STRING]:
             return 1
         else:
             return None
