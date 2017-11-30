@@ -61,7 +61,7 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "run_wrecker1", "bdfcomp050_10", "r7_mini", "laa_laa", "po", "dipsy", "tinkiwinki", "inderusty",
             "boris_redan", "dfwc2017_1", "tilestrafes", "zeel_uminati", "inder_strangeland", "odessa", "chile9",
             "chile13", "chile15", "chile18", "chile20", "chile25", "gpl_strangeland_strafe", "architects_grinders2",
-            "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan")
+            "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo")
 
 PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
