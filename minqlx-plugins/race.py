@@ -579,7 +579,9 @@ class race(minqlx.Plugin):
             return minqlx.RET_USAGE
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
-        pb(map_name, self.weapons_physics_to_mode(weapons, physics), weapons, physics)
+        mode = self.weapons_physics_to_mode(weapons, physics)
+        channel.reply('map:{} weps:{} physics:{} mode:{}'.format(map_name, weapons, physics, mode))
+        pb(map_name, mode, weapons, physics)
 
     @staticmethod
     def weapons_physics_to_mode(weapons, physics):
