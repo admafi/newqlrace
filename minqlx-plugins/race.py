@@ -99,7 +99,7 @@ class race(minqlx.Plugin):
         self.add_command(("all", "sall", "a", "sa"), self.cmd_all, usage="[map] <vql/pql>")
         self.add_command(("ranktime", "sranktime", "rt", "srt"), self.cmd_ranktime, usage="<time> [map]")
         self.add_command(("avg", "savg"), self.cmd_avg, usage="[id] <vql/pql>")
-        self.add_command("randommap", self.cmd_random_map)
+        self.add_command("randommap", self.cmd_random_map, usage='[amount]')
         self.add_command("recent", self.cmd_recent, usage="[amount]")
         self.add_command(("goto", "tp"), self.cmd_goto, usage="<id>")
         self.add_command("savepos", self.cmd_savepos)
@@ -964,6 +964,8 @@ class race(minqlx.Plugin):
                     number_of_maps = 3
             except ValueError:
                 pass
+        elif len(msg) > 2 and len(msg) != 1:
+            return minqlx.RET_USAGE
         # Get random map names and create data structure to store record counts
         maps = {_map: {} for _map in random.sample(self.maps, number_of_maps)}
         # Get current physics modes
