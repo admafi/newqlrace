@@ -986,7 +986,7 @@ class race(minqlx.Plugin):
                 return
         # Display the results
         channel.reply('^7!choose <n> to vote map')
-        channel.reply('^7(n) ^3map^1(strafe/weapons) ' + ''.join(["^7({}) ^3{} ^1({}/{})".format(i + 1,
+        channel.reply('^7(n) ^3map^1(strafe/weapons) ' + ' '.join(["^7({}) ^3{} ^1({}/{})".format(i + 1,
                                                                                                  _map,
                                                                                                  record_counts[
                                                                                                      'strafe'],
