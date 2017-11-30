@@ -99,7 +99,7 @@ class race(minqlx.Plugin):
         self.add_command(("all", "sall", "a", "sa"), self.cmd_all, usage="[map] <vql/pql>")
         self.add_command(("ranktime", "sranktime", "rt", "srt"), self.cmd_ranktime, usage="<time> [map]")
         self.add_command(("avg", "savg"), self.cmd_avg, usage="[id] <vql/pql>")
-        self.add_command("randommap", self.cmd_random_map, usage='[amount]')
+        self.add_command("randommap, choose", self.cmd_random_map, usage='[amount]')
         self.add_command("recent", self.cmd_recent, usage="[amount]")
         self.add_command(("goto", "tp"), self.cmd_goto, usage="<id>")
         self.add_command("savepos", self.cmd_savepos)
@@ -109,7 +109,6 @@ class race(minqlx.Plugin):
         self.add_command(("timer", "starttimer", "stoptimer"), self.cmd_timer)
         self.add_command(("reset", "resettime", "resetscore"), self.cmd_reset)
         self.add_command(("commands", "cmds", "help"), self.cmd_commands, priority=minqlx.PRI_HIGH)
-        self.add_command("choose", self.cmd_vote_random_map, usage="<n>")
 
         self.set_cvar_once("qlx_raceMode", "0")  # 0 = Turbo/PQL, 2 = Classic/VQL
         self.set_cvar_once("qlx_raceBrand", "QLRace.com")  # Can set to "" to not brand
@@ -928,76 +927,76 @@ class race(minqlx.Plugin):
             strafe = ""
         avg(player, mode)
 
-    def cmd_vote_random_map(self, player, msg, channel):
-        """Usage: !choose <n> where n is the map number displayed next to the map by cmd_random_map
-        Only does something after cmd_random_map has been called at least once
-        Votes the map name indicated by <n> by randommap"""
-        if not self.random_maps:
-            channel.reply('^7Use !randommap first.')
-        elif len(msg) == 1:
-            return minqlx.RET_USAGE
-        else:
-            try:
-                map_id = int(msg[1]) - 1
-                if map_id < 0 or map_id >= len(self.random_maps):
-                    raise ValueError
-                # Valid map id -> call the vote
-                channel.reply("cv map {}".format(self.random_maps[map_id]))
-                channel.reply(self.random_maps)
-                channel.reply(map_id)
-                minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
-                self.random_maps = None
-            except ValueError:
-                return minqlx.RET_USAGE
-
     @minqlx.thread
     def cmd_random_map(self, player, msg, channel):
         """Display msg[1] number of random maps and show the number of records on them for the current physics mode (strafe and weapons)"""
         # Determine number of random maps to show, max 5 min 1
-        number_of_maps = 3
-        if msg and len(msg) == 2:
-            try:
-                number_of_maps = int(msg[1])
-                if number_of_maps > 5:
-                    number_of_maps = 5
-                elif number_of_maps <= 0:
-                    number_of_maps = 3
-            except ValueError:
-                pass
-        elif len(msg) > 2 and len(msg) != 1:
-            return minqlx.RET_USAGE
-        # Get random map names and create data structure to store record counts
-        maps = {_map.lower(): {} for _map in random.sample(self.maps, number_of_maps)}
-        # Get current physics modes
-        weapons_mode = self.get_cvar('qlx_raceMode', int)
-        strafe_mode = weapons_mode + 1
-        # Get the number of strafe and weapon records for each map for the current physics modes
-        for _map in maps.keys():
-            try:
-                # Get weapons records
-                data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
-                                         params=PARAMS[weapons_mode]).json()
-                maps[_map]['weapons'] = len(data_json['records'])
-                # Get strafe records
-                data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
-                                         params=PARAMS[strafe_mode]).json()
-                maps[_map]['strafe'] = len(data_json['records'])
-            except requests.exceptions.RequestException as e:
-                # qlrace.com api unreachable
-                self.logger.error(e)
-                return
-        # Display the results
-        channel.reply('^7!choose <n> to vote map')
-        channel.reply('^7(n) ^3map^1(strafe/weapons) ' + ' '.join(["^7({}) ^3{} ^1({}/{})".format(i + 1,
-                                                                                                 _map,
-                                                                                                 record_counts[
-                                                                                                     'strafe'],
-                                                                                                 record_counts[
-                                                                                                     'weapons'])
-                                                                  for i, (_map, record_counts) in
-                                                                  enumerate(maps.items())]))
-        # Store maps in self.random_maps for use by cmd_vote_random_map
-        self.random_maps = maps.keys()
+        if msg[0] == '!randommap':
+            number_of_maps = 3
+            if msg and len(msg) == 2:
+                try:
+                    number_of_maps = int(msg[1])
+                    if number_of_maps > 5:
+                        number_of_maps = 5
+                    elif number_of_maps <= 0:
+                        number_of_maps = 3
+                except ValueError:
+                    pass
+            elif len(msg) > 2 and len(msg) != 1:
+                return minqlx.RET_USAGE
+            # Get random map names and create data structure to store record counts
+            maps = {_map.lower(): {} for _map in random.sample(self.maps, number_of_maps)}
+            # Get current physics modes
+            weapons_mode = self.get_cvar('qlx_raceMode', int)
+            strafe_mode = weapons_mode + 1
+            # Get the number of strafe and weapon records for each map for the current physics modes
+            for _map in maps.keys():
+                try:
+                    # Get weapons records
+                    data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
+                                             params=PARAMS[weapons_mode]).json()
+                    maps[_map]['weapons'] = len(data_json['records'])
+                    # Get strafe records
+                    data_json = requests.get('https://qlrace.com/api/map/{}'.format(_map),
+                                             params=PARAMS[strafe_mode]).json()
+                    maps[_map]['strafe'] = len(data_json['records'])
+                except requests.exceptions.RequestException as e:
+                    # qlrace.com api unreachable
+                    self.logger.error(e)
+                    return
+            # Display the results
+            channel.reply('^7!choose <n> to vote map')
+            channel.reply('^7(n) ^3map^1(strafe/weapons) ' + ' '.join(["^7({}) ^3{} ^1({}/{})".format(i + 1,
+                                                                                                     _map,
+                                                                                                     record_counts[
+                                                                                                         'strafe'],
+                                                                                                     record_counts[
+                                                                                                         'weapons'])
+                                                                      for i, (_map, record_counts) in
+                                                                      enumerate(maps.items())]))
+            # Store maps in self.random_maps for use by cmd_vote_random_map
+            self.random_maps = maps.keys()
+        elif msg[0] == '!choose':
+            """Usage: !choose <n> where n is the map number displayed next to the map by cmd_random_map
+            Only does something after cmd_random_map has been called at least once
+            Votes the map name indicated by <n> by randommap"""
+            if not self.random_maps:
+                channel.reply('^7Use !randommap first.')
+            elif len(msg) == 1:
+                return minqlx.RET_USAGE
+            else:
+                try:
+                    map_id = int(msg[1]) - 1
+                    if map_id < 0 or map_id >= len(self.random_maps):
+                        raise ValueError
+                    # Valid map id -> call the vote
+                    channel.reply("cv map {}".format(self.random_maps[map_id]))
+                    channel.reply(self.random_maps)
+                    channel.reply(map_id)
+                    minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
+                    self.random_maps = None
+                except ValueError:
+                    return minqlx.RET_USAGE
 
     def cmd_recent(self, player, msg, channel):
         """Outputs the most recent maps from QLRace.com"""
