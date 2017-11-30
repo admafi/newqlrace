@@ -575,7 +575,7 @@ class race(minqlx.Plugin):
             if msg[2].lower() in PHYSICS_STRINGS:
                 physics = msg[2].lower()
             map_prefix = msg[1].lower()
-        else:
+        elif len(msg) != 1 and len(msg) > 3:
             return minqlx.RET_USAGE
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
@@ -643,7 +643,7 @@ class race(minqlx.Plugin):
             map_prefix = msg[2]
             if msg[3].lower() in PHYSICS_STRINGS:
                 physics = msg[3].lower()
-        else:
+        elif len(msg) > 4 and len(msg) != 1:
             return minqlx.RET_USAGE
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
@@ -682,7 +682,7 @@ class race(minqlx.Plugin):
                     physics = msg[3].lower()
             except ValueError:
                 return minqlx.RET_USAGE
-        elif len(msg) > 4:
+        elif len(msg) > 4 and len(msg) != 1:
             return minqlx.RET_USAGE
 
         if amount > 20:
@@ -810,7 +810,7 @@ class race(minqlx.Plugin):
             map_prefix = msg[1]
             if msg[2].lower() in PHYSICS_STRINGS:
                 physics = msg[2].lower()
-        else:
+        elif len(msg) != 1 and len(msg) > 3:
             return minqlx.RET_USAGE
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
@@ -903,7 +903,7 @@ class race(minqlx.Plugin):
             except (ValueError, minqlx.NonexistentPlayerError):
                 player.tell("Invalid ID.")
                 return minqlx.RET_STOP_ALL
-        elif len(msg) > 3:
+        elif len(msg) > 3 and len(msg) != 1:
             return
 
         if msg[0][1].lower() == "s":
