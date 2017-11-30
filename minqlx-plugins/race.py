@@ -90,13 +90,13 @@ class race(minqlx.Plugin):
         self.add_hook("frame", self.handle_frame)
         self.add_command(("slap", "slay"), self.cmd_disabled, priority=minqlx.PRI_HIGH)
         self.add_command("updatemaps", self.cmd_updatemaps)
-        self.add_command(("pb", "me", "spb", "sme", "p", "sp"), self.cmd_pb, usage="[map]")
-        self.add_command(("rank", "srank", "r", "sr"), self.cmd_rank, usage="[rank] [map]")
+        self.add_command(("pb", "me", "spb", "sme", "p", "sp"), self.cmd_pb, usage="[map] <vql/pql>")
+        self.add_command(("rank", "srank", "r", "sr"), self.cmd_rank, usage="[rank] [map] <vql/pql>")
         self.add_command(("top", "stop", "t", "st", "oldtop", "oldstop", "ot", "ost"), self.cmd_top,
-                         usage="[amount] [map]")
-        self.add_command(("all", "sall", "a", "sa"), self.cmd_all, usage="[map]")
+                         usage="[amount] [map] <vql/pql>")
+        self.add_command(("all", "sall", "a", "sa"), self.cmd_all, usage="[map] <vql/pql>")
         self.add_command(("ranktime", "sranktime", "rt", "srt"), self.cmd_ranktime, usage="<time> [map]")
-        self.add_command(("avg", "savg"), self.cmd_avg, usage="[id]")
+        self.add_command(("avg", "savg"), self.cmd_avg, usage="[id] <vql/pql>")
         self.add_command("randommap", self.cmd_random_map)
         self.add_command("recent", self.cmd_recent, usage="[amount]")
         self.add_command(("goto", "tp"), self.cmd_goto, usage="<id>")
@@ -556,45 +556,43 @@ class race(minqlx.Plugin):
             rank, time = records.pb(player.steam_id)
             if not weapons:
                 map_name += "^2(strafe)"
+            if physics:
+                map_name += "^2({})".format(physics)
             if rank:
                 channel.reply(records.output(player, rank, time))
             else:
                 channel.reply("^2No time found for ^7{} ^2on ^3{}".format(player, map_name))
 
-        if len(msg) == 1:
-            map_prefix = self.game.map.lower()
-            physics = None
-        elif len(msg) == 2:
-            if msg[1].lower() not in PHYSICS_STRINGS:
-                map_prefix = msg[1]
-                physics = None
+        physics = None
+        map_prefix = self.game.map.lower()
+        if len(msg) == 2:
+            if msg[1].lower() in PHYSICS_STRINGS:
+                physics = msg[1].lower()
             else:
-                physics = msg[1],
-                map_prefix = self.game.map.lower()
+                map_prefix = msg[1].lower()
         elif len(msg) == 3:
-            if msg[1].lower() in PHYSICS_STRINGS and msg[2].lower() not in PHYSICS_STRINGS:
-                map_prefix = msg[2]
-                physics = msg[1]
-            elif msg[1].lower() not in PHYSICS_STRINGS and msg[2].lower() in PHYSICS_STRINGS:
-                map_prefix = msg[1]
-                physics = msg[2]
-            else:
-                physics = None
-                map_prefix = self.game.map.lower()
+            if msg[2].lower() in PHYSICS_STRINGS:
+                physics = msg[2].lower()
+            map_prefix = msg[1].lower()
         else:
             return minqlx.RET_USAGE
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
-        if physics and weapons and physics == PHYSICS_VQL_STRING:
-            pb(map_name, 2)
-        elif physics and weapons and physics == PHYSICS_PQL_STRING:
-            pb(map_name, 0)
-        elif physics and not weapons and physics == PHYSICS_VQL_STRING:
-            pb(map_name, 3)
-        elif physics and not weapons and physics == PHYSICS_PQL_STRING:
-            pb(map_name, 1)
+        pb(map_name, self.weapons_physics_to_mode(weapons, physics))
+
+    @staticmethod
+    def weapons_physics_to_mode(weapons, physics):
+        """Convert weapons bool and physics string to mode int"""
+        if weapons and physics == PHYSICS_VQL_STRING:
+            return 2
+        elif weapons and physics == PHYSICS_PQL_STRING:
+            return 0
+        elif not weapons and physics == PHYSICS_VQL_STRING:
+            return 3
+        elif not weapons and physics == PHYSICS_PQL_STRING:
+            return 1
         else:
-            pb(map_name)
+            return None
 
     def cmd_rank(self, player, msg, channel):
         """Outputs the x rank time for a map. Default rank
@@ -602,11 +600,13 @@ class race(minqlx.Plugin):
         """
 
         @minqlx.thread
-        def get_rank(map_name):
-            records = self.get_records(map_name, weapons)
+        def get_rank(map_name, mode=None):
+            records = self.get_records(map_name, weapons, mode)
             name, actual_rank, time = records.rank(rank)
             if not weapons:
                 map_name += "^2(strafe)"
+            if physics:
+                map_name += "^2({})".format(physics)
             if time:
                 if actual_rank != rank:
                     tied = True
@@ -616,44 +616,72 @@ class race(minqlx.Plugin):
             else:
                 channel.reply("^2No rank ^3{} ^2time found on ^3{}".format(rank, map_name))
 
-        if len(msg) == 1:
-            rank = 1
-            map_prefix = self.game.map.lower()
-        elif len(msg) == 2:
+        physics = None
+        rank = 1
+        map_prefix = self.game.map.lower()
+        if len(msg) == 2:
             if msg[1].isdigit():
                 rank = int(msg[1])
-                map_prefix = self.game.map.lower()
+            elif msg[1].lower() in PHYSICS_STRINGS:
+                physics = msg[1].lower()
             else:
-                rank = 1
                 map_prefix = msg[1]
         elif len(msg) == 3:
+            if msg[1].isdigit():
+                rank = int(msg[1])
+                if msg[2].lower() in PHYSICS_STRINGS:
+                    physics = msg[2].lower()
+                else:
+                    map_prefix = msg[2]
+            else:
+                map_prefix = msg[1]
+                if msg[2].lower() in PHYSICS_STRINGS:
+                    physics = msg[2].lower()
+        elif len(msg) == 4:
             rank = int(msg[1])
             map_prefix = msg[2]
+            if msg[3].lower() in PHYSICS_STRINGS:
+                physics = msg[3].lower()
         else:
             return minqlx.RET_USAGE
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
-        get_rank(map_name)
+        get_rank(map_name, self.weapons_physics_to_mode(weapons, physics))
 
     def cmd_top(self, player, msg, channel):
         """Outputs top x amount of times for a map. Default amount
-        if none is given is 10. Maximum amount is 20.
-        TODO: !top vql/classic/pql/turbo.
-        Will probably reimplement everything from scratch."""
+        if none is given is 10. Maximum amount is 20."""
         amount = 10
         map_prefix = self.game.map
+        physics = None
         if len(msg) == 2:
             try:
                 amount = int(msg[1])
             except ValueError:
-                map_prefix = msg[1]
+                if msg[1].lower() in PHYSICS_STRINGS:
+                    physics = msg[1].lower()
+                else:
+                    map_prefix = msg[1]
         elif len(msg) == 3:
             try:
                 amount = int(msg[1])
+                if msg[2].lower() in PHYSICS_STRINGS:
+                    physics = msg[2].lower()
+                else:
+                    map_prefix = msg[2]
+            except ValueError:
+                map_prefix = msg[1]
+                if msg[2].lower() in PHYSICS_STRINGS:
+                    physics = msg[2].lower()
+        elif len(msg) == 4:
+            try:
+                amount = int(msg[1])
+                map_prefix = msg[2]
+                if msg[3].lower() in PHYSICS_STRINGS:
+                    physics = msg[3].lower()
             except ValueError:
                 return minqlx.RET_USAGE
-            map_prefix = msg[2]
-        elif len(msg) > 3:
+        elif len(msg) > 4:
             return minqlx.RET_USAGE
 
         if amount > 20:
@@ -665,16 +693,19 @@ class race(minqlx.Plugin):
             if map_name not in self.old_maps:
                 channel.reply("^3{} ^2has no times on ql.leeto.fi".format(map_prefix))
             else:
-                self.old_top(map_name, msg[0], amount, channel)
+                self.old_top(map_name, msg[0], amount, channel, physics)
         else:
             map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
-            self.top(map_name, weapons, amount, channel)
+            mode = self.weapons_physics_to_mode(weapons, physics)
+            self.top(map_name, weapons, amount, channel, mode, physics)
 
     @minqlx.thread
-    def top(self, map_name, weapons, amount, channel):
-        records = self.get_records(map_name, weapons)
+    def top(self, map_name, weapons, amount, channel, mode=None, physics=None):
+        records = self.get_records(map_name, weapons, mode)
         if not weapons:
             map_name += "^2(strafe)"
+        if physics:
+            map_name += "^2({})".format(physics)
         if not records.records:
             channel.reply("^2No times were found on ^3{}".format(map_name))
             return
@@ -698,13 +729,19 @@ class race(minqlx.Plugin):
             channel.reply(line)
 
     @minqlx.thread
-    def old_top(self, map_name, command, amount, channel):  #
+    def old_top(self, map_name, command, amount, channel, physics):  #
         if "s" in command.lower():
             weapons = False
-            mode = self.get_cvar("qlx_raceMode", int) + 1
+            if not physics:
+                mode = self.get_cvar("qlx_raceMode", int) + 1
+            else:
+                mode = self.weapons_physics_to_mode(weapons, physics)
         else:
             weapons = True
-            mode = self.get_cvar("qlx_raceMode", int)
+            if not physics:
+                mode = self.get_cvar("qlx_raceMode", int)
+            else:
+                mode = self.weapons_physics_to_mode(weapons, physics)
 
         try:
             records = requests.get("{}/{}/{}.json".format(OLDTOP_URL, map_name, mode)).json()["records"]
@@ -714,6 +751,8 @@ class race(minqlx.Plugin):
 
         if not weapons:
             map_name += "^2(strafe)"
+        if physics:
+            map_name += "^2({})".format(physics)
         if not records:
             channel.reply("^2No old times were found on ^3{}".format(map_name))
             return
@@ -742,8 +781,8 @@ class race(minqlx.Plugin):
         """
 
         @minqlx.thread
-        def get_all(map_name):
-            records = self.get_records(map_name, weapons).records
+        def get_all(map_name, mode=None):
+            records = self.get_records(map_name, weapons, mode).records
             players = {p.steam_id for p in self.players()}
             times = []
             for record in records:
@@ -752,20 +791,30 @@ class race(minqlx.Plugin):
                                                            race.time_string(record["time"])))
             if not weapons:
                 map_name += "^2(strafe)"
+            if physics:
+                map_name += "^2({})".format(physics)
             if times:
                 self.output_times(map_name, times, channel)
             else:
                 channel.reply("^2No times were found for anyone on ^3{} ^2:(".format(map_name))
 
-        if len(msg) == 1:
-            map_prefix = self.game.map
-        elif len(msg) == 2:
+        map_prefix = self.game.map
+        physics = None
+        if len(msg) == 2:
+            if msg[1].lower() in PHYSICS_STRINGS:
+                physics = msg[1].lower()
+            else:
+                map_prefix = msg[1]
+        elif len(msg) == 3:
             map_prefix = msg[1]
+            if msg[2].lower() in PHYSICS_STRINGS:
+                physics = msg[2].lower()
         else:
             return minqlx.RET_USAGE
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
-        get_all(map_name)
+        mode = self.weapons_physics_to_mode(weapons, physics)
+        get_all(map_name, mode)
 
     def cmd_ranktime(self, player, msg, channel):
         """Outputs which rank a time would be."""
@@ -818,11 +867,16 @@ class race(minqlx.Plugin):
             if name is not None and total_maps > 0:
                 avg = data["average"]
                 medals = data["medals"]
-                channel.reply("^7{} ^2average {}rank: ^3{:.2f}^2({} maps) ^71st: ^3{} ^72nd: ^3{} ^73rd: ^3{}"
-                              .format(player, strafe, avg, total_maps, medals[0], medals[1], medals[2]))
+                if not physics:
+                    channel.reply("^7{} ^2average {}rank: ^3{:.2f}^2({} maps) ^71st: ^3{} ^72nd: ^3{} ^73rd: ^3{}"
+                                  .format(player, strafe, avg, total_maps, medals[0], medals[1], medals[2]))
+                else:
+                    channel.reply("^7{} ^2average {}rank ({}): ^3{:.2f}^2({} maps) ^71st: ^3{} ^72nd: ^3{} ^73rd: ^3{}"
+                                  .format(player, strafe, physics, avg, total_maps, medals[0], medals[1], medals[2]))
             else:
                 channel.reply("^7{} ^2has no {}records :(".format(player, strafe))
 
+        physics = None
         if len(msg) == 2:
             try:
                 i = int(msg[1])
@@ -830,20 +884,38 @@ class race(minqlx.Plugin):
                 if not (0 <= i < 64) or not target_player:
                     raise ValueError
                 player = target_player
-            except ValueError:
+            except (ValueError, minqlx.NonexistentPlayerError):
+                if msg[1].lower() in PHYSICS_STRINGS:
+                    physics = msg[1].lower()
+                else:
+                    player.tell("Invalid ID.")
+                    return minqlx.RET_STOP_ALL
+        elif len(msg) == 3:
+            try:
+                i = int(msg[1])
+                if msg[2].lower() in PHYSICS_STRINGS:
+                    physics = msg[2].lower()
+                target_player = self.player(i)
+                if not (0 <= i < 64) or not target_player:
+                    raise ValueError
+                player = target_player
+            except (ValueError, minqlx.NonexistentPlayerError):
                 player.tell("Invalid ID.")
                 return minqlx.RET_STOP_ALL
-            except minqlx.NonexistentPlayerError:
-                player.tell("Invalid ID.")
-                return minqlx.RET_STOP_ALL
-        elif len(msg) > 2:
+        elif len(msg) > 3:
             return
 
         if msg[0][1].lower() == "s":
-            mode = self.get_cvar("qlx_raceMode", int) + 1
+            if physics:
+                mode = self.weapons_physics_to_mode(False, physics)
+            else:
+                mode = self.get_cvar("qlx_raceMode", int) + 1
             strafe = "strafe "
         else:
-            mode = self.get_cvar("qlx_raceMode", int)
+            if physics:
+                mode = self.weapons_physics_to_mode(True, physics)
+            else:
+                mode = self.get_cvar("qlx_raceMode", int)
             strafe = ""
         avg()
 
@@ -861,7 +933,7 @@ class race(minqlx.Plugin):
                     number_of_maps = 3
             except ValueError:
                 pass
-        # Get 5 random maps names and create data structure to store record counts
+        # Get random map names and create data structure to store record counts
         maps = {_map: {} for _map in random.sample(self.maps, number_of_maps)}
         # Get current physics modes
         weapons_mode = self.get_cvar('qlx_raceMode', int)
@@ -881,14 +953,16 @@ class race(minqlx.Plugin):
                 # qlrace.com api unreachable
                 self.logger.error(e)
                 return
-        # Display a header
         # Display the results
-        channel.reply('^3map^1(strafe/weapons)^7: ' + ' ^7| '.join(["^3{} ^1({}/{})".format(_map,
-                                                                                            record_counts['strafe'],
-                                                                                            record_counts[
-                                                                                                'weapons'])
-                                                                    for _map, record_counts in maps.items()]))
-
+        channel.reply('^7!vote <n> to vote map')
+        channel.reply('^7(n) ^3map^1(strafe/weapons) ' + ''.join(["^7({}) ^3{} ^1({}/{})".format(i + 1,
+                                                                                                 _map,
+                                                                                                 record_counts[
+                                                                                                     'strafe'],
+                                                                                                 record_counts[
+                                                                                                     'weapons'])
+                                                                  for i, (_map, record_counts) in
+                                                                  enumerate(maps.items())]))
 
     def cmd_recent(self, player, msg, channel):
         """Outputs the most recent maps from QLRace.com"""
