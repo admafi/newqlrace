@@ -107,6 +107,7 @@ class race(minqlx.Plugin):
         self.add_command(("timer", "starttimer", "stoptimer"), self.cmd_timer)
         self.add_command(("reset", "resettime", "resetscore"), self.cmd_reset)
         self.add_command(("commands", "cmds", "help"), self.cmd_commands, priority=minqlx.PRI_HIGH)
+        self.add_command("vote", self.cmd_vote_random_map)
 
         self.set_cvar_once("qlx_raceMode", "0")  # 0 = Turbo/PQL, 2 = Classic/VQL
         self.set_cvar_once("qlx_raceBrand", "QLRace.com")  # Can set to "" to not brand
@@ -919,6 +920,24 @@ class race(minqlx.Plugin):
             strafe = ""
         avg()
 
+    def cmd_vote_random_map(self, player, msg, channel):
+        """Usage: !vote <n> where n is the map number displayed next to the map by cmd_random_map
+        Only does something after cmd_random_map has been called at least once
+        Votes the map name indicated by <n> by randommap"""
+        if not self.random_maps:
+            channel.reply('^7Use !randommap first.')
+        elif len(msg) == 1:
+            channel.reply('^7Usage: !vote <n>')
+        else:
+            try:
+                map_id = int(msg[1])
+                if map_id < 0 or map_id > len(self.random_maps):
+                    raise ValueError
+                # Valid map id -> call the vote
+                minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
+            except ValueError:
+                channel.reply('^7Usage: !vote <n>')
+
     @minqlx.thread
     def cmd_random_map(self, player, msg, channel):
         """Display msg[1] number of random maps and show the number of records on them for the current physics mode (strafe and weapons)"""
@@ -963,6 +982,8 @@ class race(minqlx.Plugin):
                                                                                                      'weapons'])
                                                                   for i, (_map, record_counts) in
                                                                   enumerate(maps.items())]))
+        # Store maps in self.random_maps for use by cmd_vote_random_map
+        self.random_maps = maps.keys()
 
     def cmd_recent(self, player, msg, channel):
         """Outputs the most recent maps from QLRace.com"""
