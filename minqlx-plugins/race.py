@@ -946,6 +946,7 @@ class race(minqlx.Plugin):
                 channel.reply(self.random_maps)
                 channel.reply(map_id)
                 minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
+                self.random_maps = None
             except ValueError:
                 return minqlx.RET_USAGE
 
@@ -984,7 +985,7 @@ class race(minqlx.Plugin):
                 self.logger.error(e)
                 return
         # Display the results
-        channel.reply('^7!vote <n> to vote map')
+        channel.reply('^7!choose <n> to vote map')
         channel.reply('^7(n) ^3map^1(strafe/weapons) ' + ''.join(["^7({}) ^3{} ^1({}/{})".format(i + 1,
                                                                                                  _map,
                                                                                                  record_counts[
