@@ -554,13 +554,15 @@ class race(minqlx.Plugin):
         def pb(map_name, mode=None, weapons=None, physics=None):
             records = self.get_records(map_name, weapons, mode)
             rank, time = records.pb(player.steam_id)
-            channel.reply('^7map:{} mode:{} weps:{} phys:{}'.format(map_name, mode, weapons, physics))
             if not weapons:
                 map_name += "^2(strafe)"
             if physics:
+                physics_string = "^3({})".format(physics)
                 map_name += "^2({})".format(physics)
+            else:
+                physics_string = ""
             if rank:
-                channel.reply(records.output(player, rank, time))
+                channel.reply("{}{}".format(records.output(player, rank, time), physics_string))
             else:
                 channel.reply("^2No time found for ^7{} ^2on ^3{}".format(player, map_name))
 
@@ -580,7 +582,6 @@ class race(minqlx.Plugin):
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
         mode = self.weapons_physics_to_mode(weapons, physics)
-        channel.reply('^7map:{} weps:{} physics:{} mode:{}'.format(map_name, weapons, physics, mode))
         pb(map_name, mode, weapons, physics)
 
     @staticmethod
@@ -609,13 +610,16 @@ class race(minqlx.Plugin):
             if not weapons:
                 map_name += "^2(strafe)"
             if physics:
+                physics_string = "^3({})".format(physics)
                 map_name += "^2({})".format(physics)
+            else:
+                physics_string = ""
             if time:
                 if actual_rank != rank:
                     tied = True
                 else:
                     tied = False
-                channel.reply(records.output(name, rank, time, tied))
+                channel.reply("{}{}".format(records.output(name, rank, time, tied), physics_string))
             else:
                 channel.reply("^2No rank ^3{} ^2time found on ^3{}".format(rank, map_name))
 
@@ -1220,7 +1224,7 @@ class race(minqlx.Plugin):
         :param weapons: Weapons boolean
         :param mode: If not None use this arg as the mode instead of the current mode
         """
-        if mode:
+        if mode is not None:
             return RaceRecords(map_name, mode)
         elif weapons:
             mode = self.get_cvar("qlx_raceMode", int)
