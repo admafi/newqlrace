@@ -552,7 +552,7 @@ class race(minqlx.Plugin):
         """Outputs the player's personal best time for a map."""
 
         @minqlx.thread
-        def pb(map_name, mode=None):
+        def pb(map_name, mode=None, weapons=None, physics=None):
             records = self.get_records(map_name, weapons, mode)
             rank, time = records.pb(player.steam_id)
             if not weapons:
@@ -579,7 +579,7 @@ class race(minqlx.Plugin):
             return minqlx.RET_USAGE
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
-        pb(map_name, self.weapons_physics_to_mode(weapons, physics))
+        pb(map_name, self.weapons_physics_to_mode(weapons, physics), weapons, physics)
 
     @staticmethod
     def weapons_physics_to_mode(weapons, physics):
@@ -601,7 +601,7 @@ class race(minqlx.Plugin):
         """
 
         @minqlx.thread
-        def get_rank(map_name, mode=None):
+        def get_rank(map_name, mode=None, weapons=None, physics=None):
             records = self.get_records(map_name, weapons, mode)
             name, actual_rank, time = records.rank(rank)
             if not weapons:
@@ -647,7 +647,7 @@ class race(minqlx.Plugin):
             return minqlx.RET_USAGE
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
-        get_rank(map_name, self.weapons_physics_to_mode(weapons, physics))
+        get_rank(map_name, self.weapons_physics_to_mode(weapons, physics), weapons, physics)
 
     def cmd_top(self, player, msg, channel):
         """Outputs top x amount of times for a map. Default amount
@@ -782,7 +782,7 @@ class race(minqlx.Plugin):
         """
 
         @minqlx.thread
-        def get_all(map_name, mode=None):
+        def get_all(map_name, mode=None, weapons=None, physics=None):
             records = self.get_records(map_name, weapons, mode).records
             players = {p.steam_id for p in self.players()}
             times = []
@@ -815,7 +815,7 @@ class race(minqlx.Plugin):
 
         map_name, weapons = self.get_map_name_weapons(map_prefix, msg[0], channel)
         mode = self.weapons_physics_to_mode(weapons, physics)
-        get_all(map_name, mode)
+        get_all(map_name, mode, weapons, physics)
 
     def cmd_ranktime(self, player, msg, channel):
         """Outputs which rank a time would be."""
@@ -854,7 +854,7 @@ class race(minqlx.Plugin):
         """Outputs a player average rank."""
 
         @minqlx.thread
-        def avg():
+        def avg(player, mode):
             """API Doc: https://qlrace.com/apidoc/1.0/records/player.html"""
             try:
                 data = requests.get("https://qlrace.com/api/player/{}".format(player.steam_id),
@@ -918,7 +918,7 @@ class race(minqlx.Plugin):
             else:
                 mode = self.get_cvar("qlx_raceMode", int)
             strafe = ""
-        avg()
+        avg(player, mode)
 
     def cmd_vote_random_map(self, player, msg, channel):
         """Usage: !vote <n> where n is the map number displayed next to the map by cmd_random_map
