@@ -437,11 +437,13 @@ class race(minqlx.Plugin):
         if vote.lower() in PHYSICS_PQL_STRINGS and passed:
             self.game.factory = "qlrace_turbo"
             self.set_cvar("qlx_raceMode", "0")
+            minqlx.console_command("map_restart")
+            return minqlx.RET_STOP_ALL
         elif vote.lower() in PHYSICS_VQL_STRINGS and passed:
             self.game.factory = "qlrace_classic"
             self.set_cvar_once("qlx_raceMode", "2")
-        minqlx.console_command("map_restart")
-        return minqlx.RET_STOP_ALL
+            minqlx.console_command("map_restart")
+            return minqlx.RET_STOP_ALL
 
     def handle_vote_called(self, player, vote, args):
         """Cancels the vote when a duplicated map is voted for."""
