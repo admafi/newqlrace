@@ -61,7 +61,7 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "run_wrecker1", "bdfcomp050_10", "r7_mini", "laa_laa", "po", "dipsy", "tinkiwinki", "inderusty",
             "boris_redan", "dfwc2017_1", "tilestrafes", "zeel_uminati", "inder_strangeland", "odessa", "chile9",
             "chile13", "chile15", "chile18", "chile20", "chile25", "gpl_strangeland_strafe", "architects_grinders2",
-            "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral", "stammer_licorice")
+            "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket")
 
 PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
@@ -69,7 +69,7 @@ PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "d
       "prince_quake", "raus_egypt")
 RL = ("runstolfer", "charon", "charon_bw", "kozmini1", "kozmini2", "kozmini3", "kozmini4", "kozmini5", "kozmini6",
       "kozmini7", "kozmini8", "jumpspace", "pornstarghost2", "mistes_acr16", "futs_bunker_df", "futs_bunker_slick_df",
-      "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed")
+      "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon")
 GL = ("grenadorade", "uprising", "xlarve06", "vivid")
 
 _RE_POWERUPS = re.compile(r'print ".+\^3 got the (Haste|Battle Suit|Quad Damage)!\^7\n"')
