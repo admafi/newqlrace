@@ -61,7 +61,9 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "run_wrecker1", "bdfcomp050_10", "r7_mini", "laa_laa", "po", "dipsy", "tinkiwinki", "inderusty",
             "boris_redan", "dfwc2017_1", "tilestrafes", "zeel_uminati", "inder_strangeland", "odessa", "chile9",
             "chile13", "chile15", "chile18", "chile20", "chile25", "gpl_strangeland_strafe", "architects_grinders2",
-            "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket")
+            "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18",
+            "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket",
+            "bdfcomp042")
 
 PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
@@ -108,7 +110,7 @@ class race(minqlx.Plugin):
         self.add_command(("timer", "starttimer", "stoptimer"), self.cmd_timer)
         self.add_command(("reset", "resettime", "resetscore"), self.cmd_reset)
         self.add_command(("commands", "cmds", "help"), self.cmd_commands, priority=minqlx.PRI_HIGH)
-        self.add_command("choose", self.cmd_vote_random_map, usage="<n>")
+        self.add_command("vote", self.cmd_vote_random_map, usage="<n> | Use !randommap before !vote")
 
         self.set_cvar_once("qlx_raceMode", "0")  # 0 = Turbo/PQL, 2 = Classic/VQL
         self.set_cvar_once("qlx_raceBrand", "QLRace.com")  # Can set to "" to not brand
@@ -434,14 +436,18 @@ class race(minqlx.Plugin):
             self.set_cvar("g_startingAmmo_pg", "50")
 
     def handle_vote_ended(self, votes, vote, args, passed):
-        if vote.lower() in PHYSICS_PQL_STRINGS and passed:
+        if vote.lower() == "pql" and passed:
+            self.msg('pql passed')
             self.game.factory = "qlrace_turbo"
             self.set_cvar("qlx_raceMode", "0")
+            self.setcvar("g_factoryTitle", "Turbo")
             minqlx.console_command("map_restart")
             return minqlx.RET_STOP_ALL
-        elif vote.lower() in PHYSICS_VQL_STRINGS and passed:
+        elif vote.lower() == "vql" and passed:
+            self.msg('vql passed')
             self.game.factory = "qlrace_classic"
-            self.set_cvar_once("qlx_raceMode", "2")
+            self.set_cvar("qlx_raceMode", "2")
+            self.set_cvar("g_factoryTitle", "Classic")
             minqlx.console_command("map_restart")
             return minqlx.RET_STOP_ALL
 
@@ -455,9 +461,13 @@ class race(minqlx.Plugin):
             if map_name.lower() in disabled_maps:
                 player.tell("^3{} ^2is disabled(duplicate map).".format(map_name))
                 return minqlx.RET_STOP_ALL
-        elif vote.lower() in PHYSICS_PQL_STRINGS and self.game.factory == "qlrace_turbo":
+        if vote.lower() in PHYSICS_PQL_STRINGS and self.game.factory != "qlrace_turbo":
+            # Call the custom vote
+            self.callvote("pql", "pql physics?")
             return minqlx.RET_STOP_ALL
-        elif vote.lower() in PHYSICS_VQL_STRINGS and self.game.factory == "qlrace_classic":
+        elif vote.lower() in PHYSICS_VQL_STRINGS and self.game.factory != "qlrace_classic":
+            # Call the custom vote
+            self.callvote("vql", "vql physics?")
             return minqlx.RET_STOP_ALL
 
     def handle_server_command(self, player, cmd):
@@ -945,25 +955,17 @@ class race(minqlx.Plugin):
         avg(player, mode)
 
     def cmd_vote_random_map(self, player, msg, channel):
-        """Usage: !choose <n> where n is the map number displayed next to the map by cmd_random_map
+        """Usage: !vote <n> where n is the map number displayed next to the map by cmd_random_map
         Only does something after cmd_random_map has been called at least once
         Votes the map name indicated by <n> by randommap"""
-        if not self.random_maps:
-            channel.reply('^7Use !randommap first.')
-        elif len(msg) == 1:
+        if self.random_maps is None:
+            return minqlx.RET_USAGE
+        elif len(msg) > 2 or len(msg) == 1:
             return minqlx.RET_USAGE
         else:
             try:
-                map_id = int(msg[1]) - 1
-                if map_id < 0 or map_id >= len(self.random_maps):
-                    raise ValueError
-                # Valid map id -> call the vote
-                channel.reply("cv map {}".format(self.random_maps[map_id]))
-                channel.reply(self.random_maps)
-                channel.reply(map_id)
-                minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
-                self.random_maps = None
-            except ValueError:
+                minqlx.client_command(player.id, "cv map {}".format(self.random_maps[int(msg[1])-1]))
+            except (ValueError, IndexError):
                 return minqlx.RET_USAGE
 
     @minqlx.thread
@@ -1003,7 +1005,7 @@ class race(minqlx.Plugin):
                 self.logger.error(e)
                 return
         # Display the results
-        channel.reply('^7!choose <n> to vote map')
+        channel.reply('^7!vote <n> to vote map')
         channel.reply('^7(n) ^3map^1(strafe/weapons) ' + ' '.join(["^7({}) ^3{} ^1({}/{})".format(i + 1,
                                                                                                  _map,
                                                                                                  record_counts[
@@ -1013,7 +1015,7 @@ class race(minqlx.Plugin):
                                                                   for i, (_map, record_counts) in
                                                                   enumerate(maps.items())]))
         # Store maps in self.random_maps for use by cmd_vote_random_map
-        self.random_maps = maps.keys()
+        self.random_maps = list(maps.keys())
 
     def cmd_recent(self, player, msg, channel):
         """Outputs the most recent maps from QLRace.com"""
