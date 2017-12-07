@@ -437,18 +437,12 @@ class race(minqlx.Plugin):
 
     def handle_vote_ended(self, votes, vote, args, passed):
         if vote.lower() == "pql" and passed:
-            self.msg('pql passed')
-            self.game.factory = "qlrace_turbo"
             self.set_cvar("qlx_raceMode", "0")
-            self.setcvar("g_factoryTitle", "Turbo")
-            minqlx.console_command("map_restart")
+            self.change_map(self.game.map.lower(), "qlrace_turbo")
             return minqlx.RET_STOP_ALL
         elif vote.lower() == "vql" and passed:
-            self.msg('vql passed')
-            self.game.factory = "qlrace_classic"
             self.set_cvar("qlx_raceMode", "2")
-            self.set_cvar("g_factoryTitle", "Classic")
-            minqlx.console_command("map_restart")
+            self.change_map(self.game.map.lower(), "qlrace_classic")
             return minqlx.RET_STOP_ALL
 
     def handle_vote_called(self, player, vote, args):
