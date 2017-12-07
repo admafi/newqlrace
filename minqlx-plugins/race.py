@@ -953,23 +953,16 @@ class race(minqlx.Plugin):
         """Usage: !vote <n> where n is the map number displayed next to the map by cmd_random_map
         Only does something after cmd_random_map has been called at least once
         Votes the map name indicated by <n> by randommap"""
-        if not self.random_maps:
+        if self.random_maps is None:
             return minqlx.RET_USAGE
         elif len(msg) > 2 or len(msg) == 1:
             return minqlx.RET_USAGE
         else:
-            channel.reply(self.random_maps[0])
-            minqlx.client_command(player.id, "cv map {}".format(self.random_maps[0]))
-            # try:
-            #     map_id = int(msg[1]) - 1
-            #     # Try calling the vote
-            #     try:
-            #         minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
-            #         self.random_maps = None
-            #     except IndexError:
-            #         raise ValueError
-            # except ValueError:
-            #     return minqlx.RET_USAGE
+            try:
+                minqlx.client_command(player.id, "cv map {}".format(self.random_maps[int(msg[1])-1]))
+                self.random_maps = None
+            except (ValueError, IndexError):
+                return minqlx.RET_USAGE
 
     @minqlx.thread
     def cmd_random_map(self, player, msg, channel):
