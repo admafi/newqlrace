@@ -960,7 +960,6 @@ class race(minqlx.Plugin):
         else:
             try:
                 minqlx.client_command(player.id, "cv map {}".format(self.random_maps[int(msg[1])-1]))
-                self.random_maps = None
             except (ValueError, IndexError):
                 return minqlx.RET_USAGE
 
