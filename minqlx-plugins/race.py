@@ -110,7 +110,7 @@ class race(minqlx.Plugin):
         self.add_command(("timer", "starttimer", "stoptimer"), self.cmd_timer)
         self.add_command(("reset", "resettime", "resetscore"), self.cmd_reset)
         self.add_command(("commands", "cmds", "help"), self.cmd_commands, priority=minqlx.PRI_HIGH)
-        self.add_command("choose", self.cmd_vote_random_map, usage="<n> | Use !randommap before !choose")
+        self.add_command("vote", self.cmd_vote_random_map, usage="<n> | Use !randommap before !vote")
 
         self.set_cvar_once("qlx_raceMode", "0")  # 0 = Turbo/PQL, 2 = Classic/VQL
         self.set_cvar_once("qlx_raceBrand", "QLRace.com")  # Can set to "" to not brand
@@ -950,7 +950,7 @@ class race(minqlx.Plugin):
         avg(player, mode)
 
     def cmd_vote_random_map(self, player, msg, channel):
-        """Usage: !choose <n> where n is the map number displayed next to the map by cmd_random_map
+        """Usage: !vote <n> where n is the map number displayed next to the map by cmd_random_map
         Only does something after cmd_random_map has been called at least once
         Votes the map name indicated by <n> by randommap"""
         if not self.random_maps:
@@ -959,7 +959,7 @@ class race(minqlx.Plugin):
             return minqlx.RET_USAGE
         else:
             channel.reply(self.random_maps[0])
-            #minqlx.client_command(player.id, "cv map {}}".format(self.random_maps[0]))
+            minqlx.client_command(player.id, "cv map {}".format(self.random_maps[0]))
             # try:
             #     map_id = int(msg[1]) - 1
             #     # Try calling the vote
@@ -1008,7 +1008,7 @@ class race(minqlx.Plugin):
                 self.logger.error(e)
                 return
         # Display the results
-        channel.reply('^7!choose <n> to vote map')
+        channel.reply('^7!vote <n> to vote map')
         channel.reply('^7(n) ^3map^1(strafe/weapons) ' + ' '.join(["^7({}) ^3{} ^1({}/{})".format(i + 1,
                                                                                                  _map,
                                                                                                  record_counts[
