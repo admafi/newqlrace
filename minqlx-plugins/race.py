@@ -436,14 +436,18 @@ class race(minqlx.Plugin):
             self.set_cvar("g_startingAmmo_pg", "50")
 
     def handle_vote_ended(self, votes, vote, args, passed):
-        if vote.lower() in PHYSICS_PQL_STRINGS and passed:
+        if vote.lower() == "pql" and passed:
+            self.msg('pql passed')
             self.game.factory = "qlrace_turbo"
             self.set_cvar("qlx_raceMode", "0")
+            self.setcvar("g_factoryTitle", "Turbo")
             minqlx.console_command("map_restart")
             return minqlx.RET_STOP_ALL
-        elif vote.lower() in PHYSICS_VQL_STRINGS and passed:
+        elif vote.lower() == "vql" and passed:
+            self.msg('vql passed')
             self.game.factory = "qlrace_classic"
-            self.set_cvar_once("qlx_raceMode", "2")
+            self.set_cvar("qlx_raceMode", "2")
+            self.set_cvar("g_factoryTitle", "Classic")
             minqlx.console_command("map_restart")
             return minqlx.RET_STOP_ALL
 
@@ -457,13 +461,14 @@ class race(minqlx.Plugin):
             if map_name.lower() in disabled_maps:
                 player.tell("^3{} ^2is disabled(duplicate map).".format(map_name))
                 return minqlx.RET_STOP_ALL
-        if (vote.lower() in PHYSICS_PQL_STRINGS and self.game.factory == "qlrace_turbo") or\
-            (vote.lower() in PHYSICS_VQL_STRINGS and self.game.factory == "qlrace_classic"):
-            # Invalid vote -> Stop the entire vote
+        if vote.lower() in PHYSICS_PQL_STRINGS and self.game.factory != "qlrace_turbo":
+            # Call the custom vote
+            self.callvote("pql", "pql physics?")
             return minqlx.RET_STOP_ALL
-        # else:
-        #     # Valid vote, but stop other handlers?
-        #     return minqlx.STOP
+        elif vote.lower() in PHYSICS_VQL_STRINGS and self.game.factory != "qlrace_classic":
+            # Call the custom vote
+            self.callvote("vql", "vql physics?")
+            return minqlx.RET_STOP_ALL
 
     def handle_server_command(self, player, cmd):
         """Stops server printing powerup messages."""
