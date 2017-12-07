@@ -108,7 +108,7 @@ class race(minqlx.Plugin):
         self.add_command(("timer", "starttimer", "stoptimer"), self.cmd_timer)
         self.add_command(("reset", "resettime", "resetscore"), self.cmd_reset)
         self.add_command(("commands", "cmds", "help"), self.cmd_commands, priority=minqlx.PRI_HIGH)
-        self.add_command("choose", self.cmd_vote_random_map, usage="<n>")
+        self.add_command("choose", self.cmd_vote_random_map, usage="<n> | Use !randommap before !choose")
 
         self.set_cvar_once("qlx_raceMode", "0")  # 0 = Turbo/PQL, 2 = Classic/VQL
         self.set_cvar_once("qlx_raceBrand", "QLRace.com")  # Can set to "" to not brand
@@ -455,10 +455,13 @@ class race(minqlx.Plugin):
             if map_name.lower() in disabled_maps:
                 player.tell("^3{} ^2is disabled(duplicate map).".format(map_name))
                 return minqlx.RET_STOP_ALL
-        elif vote.lower() in PHYSICS_PQL_STRINGS and self.game.factory == "qlrace_turbo":
+        if (vote.lower() in PHYSICS_PQL_STRINGS and self.game.factory == "qlrace_turbo") or\
+            (vote.lower() in PHYSICS_VQL_STRINGS and self.game.factory == "qlrace_classic"):
+            # Invalid vote -> Stop the entire vote
             return minqlx.RET_STOP_ALL
-        elif vote.lower() in PHYSICS_VQL_STRINGS and self.game.factory == "qlrace_classic":
-            return minqlx.RET_STOP_ALL
+        # else:
+        #     # Valid vote, but stop other handlers?
+        #     return minqlx.STOP
 
     def handle_server_command(self, player, cmd):
         """Stops server printing powerup messages."""
@@ -949,20 +952,22 @@ class race(minqlx.Plugin):
         Only does something after cmd_random_map has been called at least once
         Votes the map name indicated by <n> by randommap"""
         if not self.random_maps:
-            channel.reply('^7Use !randommap first.')
-        elif len(msg) == 1:
+            return minqlx.RET_USAGE
+        elif len(msg) > 2 or len(msg) == 1:
             return minqlx.RET_USAGE
         else:
-            try:
-                map_id = int(msg[1]) - 1
-                # Try calling the vote
-                try:
-                    minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
-                    self.random_maps = None
-                except IndexError:
-                    raise ValueError
-            except ValueError:
-                return minqlx.RET_USAGE
+            channel.reply(self.random_maps[0])
+            #minqlx.client_command(player.id, "cv map {}}".format(self.random_maps[0]))
+            # try:
+            #     map_id = int(msg[1]) - 1
+            #     # Try calling the vote
+            #     try:
+            #         minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
+            #         self.random_maps = None
+            #     except IndexError:
+            #         raise ValueError
+            # except ValueError:
+            #     return minqlx.RET_USAGE
 
     @minqlx.thread
     def cmd_random_map(self, player, msg, channel):
@@ -1011,7 +1016,7 @@ class race(minqlx.Plugin):
                                                                   for i, (_map, record_counts) in
                                                                   enumerate(maps.items())]))
         # Store maps in self.random_maps for use by cmd_vote_random_map
-        self.random_maps = maps.keys()
+        self.random_maps = list(maps.keys())
 
     def cmd_recent(self, player, msg, channel):
         """Outputs the most recent maps from QLRace.com"""
