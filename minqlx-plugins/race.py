@@ -35,7 +35,7 @@ G_ONLY = (
     "k4n", "ndql", "dfwc_xlarve", "kairos_jackson", "acc_donut", "concentration", "l1thrun", "gnj_torture4", "glados",
     "dfwc2017_2", "elco_eh", "elco_kab", "elco_woody", "hyper_atmospace", "dfwc2017_4")
 BFG_FIX = ("aa_endless")
-DMFLAGS = {"odessa", "gpl_arcaon", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral"}
+DMFLAGS = {"odessa", "gpl_arcaon", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral", "dfwc2017_6"}
 BATTLESUIT30 = {"gpl_arcaon"}
 G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr", "df_handbreaker4", "df_lickape",
             "df_lickfudge", "df_lickhq", "df_lickrevived", "df_lickrevived2", "df_licksux", "df_nodown",
@@ -63,7 +63,7 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "chile13", "chile15", "chile18", "chile20", "chile25", "gpl_strangeland_strafe", "architects_grinders2",
             "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18",
             "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket",
-            "bdfcomp042")
+            "bdfcomp042", "dfwc2017_6")
 
 PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
