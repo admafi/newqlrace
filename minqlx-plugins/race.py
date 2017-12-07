@@ -937,14 +937,12 @@ class race(minqlx.Plugin):
         else:
             try:
                 map_id = int(msg[1]) - 1
-                if map_id < 0 or map_id >= len(self.random_maps):
+                # Try calling the vote
+                try:
+                    minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
+                    self.random_maps = None
+                except IndexError:
                     raise ValueError
-                # Valid map id -> call the vote
-                channel.reply("cv map {}".format(self.random_maps[map_id]))
-                channel.reply(self.random_maps)
-                channel.reply(map_id)
-                minqlx.client_command(player.id, "cv map {}".format(self.random_maps[map_id]))
-                self.random_maps = None
             except ValueError:
                 return minqlx.RET_USAGE
 
