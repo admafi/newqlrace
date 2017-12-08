@@ -83,7 +83,6 @@ class race(minqlx.Plugin):
         self.add_hook("new_game", self.handle_new_game)
         self.add_hook("map", self.handle_map)
         self.add_hook("vote_called", self.handle_vote_called)
-        self.add_hook("vote_ended", self.handle_vote_ended)
         self.add_hook("server_command", self.handle_server_command)
         self.add_hook("stats", self.handle_stats, priority=minqlx.PRI_HIGHEST)
         self.add_hook("player_spawn", self.handle_player_spawn, priority=minqlx.PRI_HIGHEST)
@@ -435,18 +434,6 @@ class race(minqlx.Plugin):
         else:
             self.set_cvar("g_startingAmmo_pg", "50")
 
-    def handle_vote_ended(self, votes, vote, args, passed):
-        if vote.lower() in PHYSICS_PQL_STRINGS and passed:
-            self.game.factory = "qlrace_turbo"
-            self.set_cvar("qlx_raceMode", "0")
-            minqlx.console_command("map_restart")
-            return minqlx.RET_STOP_ALL
-        elif vote.lower() in PHYSICS_VQL_STRINGS and passed:
-            self.game.factory = "qlrace_classic"
-            self.set_cvar_once("qlx_raceMode", "2")
-            minqlx.console_command("map_restart")
-            return minqlx.RET_STOP_ALL
-
     def handle_vote_called(self, player, vote, args):
         """Cancels the vote when a duplicated map is voted for."""
         if vote.lower() == "map" and len(args) > 0:
@@ -457,13 +444,6 @@ class race(minqlx.Plugin):
             if map_name.lower() in disabled_maps:
                 player.tell("^3{} ^2is disabled(duplicate map).".format(map_name))
                 return minqlx.RET_STOP_ALL
-        if (vote.lower() in PHYSICS_PQL_STRINGS and self.game.factory == "qlrace_turbo") or\
-            (vote.lower() in PHYSICS_VQL_STRINGS and self.game.factory == "qlrace_classic"):
-            # Invalid vote -> Stop the entire vote
-            return minqlx.RET_STOP_ALL
-        # else:
-        #     # Valid vote, but stop other handlers?
-        #     return minqlx.STOP
 
     def handle_server_command(self, player, cmd):
         """Stops server printing powerup messages."""
