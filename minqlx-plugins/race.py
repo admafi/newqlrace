@@ -74,7 +74,7 @@ RL = ("runstolfer", "charon", "charon_bw", "kozmini1", "kozmini2", "kozmini3", "
       "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon")
 GL = ("grenadorade", "uprising", "xlarve06", "vivid")
 
-_RE_POWERUPS = re.compile(r'print ".+\^3 got the (Haste|Battle Suit|Quad Damage)!\^7\n"')
+_RE_POWERUPS = re.compile(r'print ".+\^3 got the (Haste|Battle Suit|Quad Damage|Invisibility|Regeneration)!\^7\n"')
 
 
 class race(minqlx.Plugin):
