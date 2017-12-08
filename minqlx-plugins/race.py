@@ -176,11 +176,6 @@ class race(minqlx.Plugin):
             if "puzzlemap" in self.plugins:
                 minqlx.unload_plugin("puzzlemap")
 
-        if map_name in DMFLAGS:
-            self.set_cvar("dmflags", "0")
-        else:
-            self.set_cvar("dmflags", "28")
-
         if map_name == "walkathon":
             self.set_cvar("g_respawn_delay_min", "1000")
             self.set_cvar("g_respawn_delay_max", "1000")
@@ -242,6 +237,14 @@ class race(minqlx.Plugin):
             self.set_cvar("g_knockback_pg_self", "1.3")
             self.set_cvar("g_battlesuitDampen", "0.25")
             self.set_cvar("g_startinghealthbonus", "0")
+
+        if map_name in DMFLAGS:
+            self.set_cvar("dmflags", "0")
+            self.set_cvar("g_battleSuitDampen", "0")
+        else:
+            self.set_cvar("dmflags", "28")
+        # Set to fix issues with getting in a dying loop on respawn
+        self.set_cvar("g_respawn_delay_max", "9999")
 
     def set_starting_weapons(self, map_name):
         if map_name in G_AND_MG:
