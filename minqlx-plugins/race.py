@@ -24,7 +24,8 @@ HASTE = ("df_handbreaker4", "handbreaker4_long", "handbreaker", "df_piyofunjumps
          "eatme", "wernerjump", "bloodydave", "tranquil", "et_map2", "et_map3", "et_map4", "et_map5", "zeel_ponpon",
          "snorjumpb1", "snorjump2", "piyojump2", "woftct", "apex", "runkull", "snakejumps2", "applejump_b1",
          "zerojumps_b1", "bumblbee", "r7_golem", "r7_endless", "mj_xlarve", "airmaxjumps2", "alexjumps", "brokenrun",
-         "modcomp019", "redemption", "r7_hui", "buttscar", "alkpotehasteweaps", "mistes_acr16", "bull_runner")
+         "modcomp019", "redemption", "r7_hui", "buttscar", "alkpotehasteweaps", "mistes_acr16", "bull_runner",
+         "dfwc2017_6")
 
 # physics strings used for vql and pql args on rank and related functions
 PHYSICS_PQL_STRINGS = ['pql', 'turbo', 'p', 't']
@@ -35,6 +36,8 @@ G_ONLY = (
     "k4n", "ndql", "dfwc_xlarve", "kairos_jackson", "acc_donut", "concentration", "l1thrun", "gnj_torture4", "glados",
     "dfwc2017_2", "elco_eh", "elco_kab", "elco_woody", "hyper_atmospace", "dfwc2017_4")
 BFG_FIX = ("aa_endless")
+# Fixes respawn death loops by delaying auto respawn
+RESPAWN_FIX = ("cuddles_3")
 DMFLAGS = {"odessa", "gpl_arcaon", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral", "dfwc2017_6", "dfwc04_2",
            "cuddles_6"}
 BATTLESUIT30 = {"gpl_arcaon"}
@@ -64,7 +67,7 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "chile13", "chile15", "chile18", "chile20", "chile25", "gpl_strangeland_strafe", "architects_grinders2",
             "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18",
             "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket",
-            "bdfcomp042", "dfwc2017_6", "dfwc04_2", "cuddles_7", "cuddles_8")
+            "bdfcomp042", "dfwc2017_6", "dfwc04_2", "cuddles_7", "cuddles_8", "cuddles_6")
 
 PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
@@ -244,7 +247,8 @@ class race(minqlx.Plugin):
         else:
             self.set_cvar("dmflags", "28")
         # Set to fix issues with getting in a dying loop on respawn
-        self.set_cvar("g_respawn_delay_max", "9999")
+        if map_name in RESPAWN_FIX:
+            self.set_cvar("g_respawn_delay_max", "9999")
 
     def set_starting_weapons(self, map_name):
         if map_name in G_AND_MG:
