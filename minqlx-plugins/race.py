@@ -25,7 +25,7 @@ HASTE = ("df_handbreaker4", "handbreaker4_long", "handbreaker", "df_piyofunjumps
          "snorjumpb1", "snorjump2", "piyojump2", "woftct", "apex", "runkull", "snakejumps2", "applejump_b1",
          "zerojumps_b1", "bumblbee", "r7_golem", "r7_endless", "mj_xlarve", "airmaxjumps2", "alexjumps", "brokenrun",
          "modcomp019", "redemption", "r7_hui", "buttscar", "alkpotehasteweaps", "mistes_acr16", "bull_runner",
-         "dfwc2017_6")
+         "dfwc2017_6", "hastedick", "hastedick_slick")
 
 # physics strings used for vql and pql args on rank and related functions
 PHYSICS_PQL_STRINGS = ['pql', 'turbo', 'p', 't']
@@ -75,7 +75,8 @@ PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "d
       "prince_quake", "raus_egypt")
 RL = ("runstolfer", "charon", "charon_bw", "kozmini1", "kozmini2", "kozmini3", "kozmini4", "kozmini5", "kozmini6",
       "kozmini7", "kozmini8", "jumpspace", "pornstarghost2", "mistes_acr16", "futs_bunker_df", "futs_bunker_slick_df",
-      "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon")
+      "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon",
+      "bug11", "bug11_slick", "bug22", "bug22_slick", "cliff15")
 GL = ("grenadorade", "uprising", "xlarve06", "vivid")
 
 _RE_POWERUPS = re.compile(r'print ".+\^3 got the (Haste|Battle Suit|Quad Damage|Invisibility|Regeneration)!\^7\n"')
@@ -280,6 +281,12 @@ class race(minqlx.Plugin):
         elif map_name == "elco_arca":
             self.set_cvar("g_startingWeapons", "19")
             self.set_cvar("g_infiniteAmmo", "0")
+        elif map_name == "slickplane2_strafe":
+            self.set_cvar("g_startingWeapons", "19")
+            self.set_cvar("g_infiniteAmmo", "0")
+        elif map_name == "slickplane2":
+            self.set_cvar("g_startingWeapons", "19")
+            self.set_cvar("g_infiniteAmmo", "0")
         elif map_name == "rtairs":
             self.set_cvar("g_startingWeapons", "19")
             self.set_cvar("g_infiniteAmmo", "0")
@@ -396,6 +403,10 @@ class race(minqlx.Plugin):
             self.set_cvar("g_startingAmmo_rl", "5")
         elif map_name == "elco_arca":
             self.set_cvar("g_startingAmmo_rl", "2")
+        elif map_name == "slickplane2_strafe":
+            self.set_cvar("g_startingAmmo_rl", "4")
+        elif map_name == "slickplane2":
+            self.set_cvar("g_startingAmmo_rl", "4")
         elif map_name == "rtairs":
             self.set_cvar("g_startingAmmo_rl", "2")
         elif map_name == "lovet_arcaon":
