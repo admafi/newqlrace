@@ -135,6 +135,7 @@ class race(minqlx.Plugin):
         """Brands map title on new game."""
         map_name = self.game.map.lower()
         self.brand_map(map_name)
+        self.set_cvar("g_gravity", "800")
 
     def handle_map(self, map_name, factory):
         """Brands map title and updates list of race maps on map change.
