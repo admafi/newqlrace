@@ -115,6 +115,7 @@ class race(minqlx.Plugin):
         self.add_command(("reset", "resettime", "resetscore"), self.cmd_reset)
         self.add_command(("commands", "cmds", "help"), self.cmd_commands, priority=minqlx.PRI_HIGH)
         self.add_command("vote", self.cmd_vote_random_map, usage="<n> | Use !randommap before !vote")
+        self.add_command("voterandom", self.cmd_callvote_random_map)
 
         self.set_cvar_once("qlx_raceMode", "0")  # 0 = Turbo/PQL, 2 = Classic/VQL
         self.set_cvar_once("qlx_raceBrand", "QLRace.com")  # Can set to "" to not brand
@@ -564,6 +565,11 @@ class race(minqlx.Plugin):
 
         # makes new dict with dead players removed
         self.goto = {p: score for p, score in self.goto.items() if self.player(p).health > 0}
+
+    def cmd_callvote_random_map(self, player, msg, channel):
+        """Callvotes a random map."""
+        map_name = random.choice(self.maps)
+        minqlx.client_command(player.id, "cv map {}".format(map_name))
 
     def cmd_disabled(self, player, msg, channel):
         """Disables !slap and !slay."""
@@ -1172,7 +1178,7 @@ class race(minqlx.Plugin):
     def cmd_commands(self, player, msg, channel):
         """Outputs list of race commands."""
         channel.reply("Commands: ^3!(s)pb !(s)rank !(s)top !old(s)top !(s)all !(s)ranktime !(s)avg !randommap !recent")
-        channel.reply("^3!goto !savepos !loadpos !maps !haste !removehaste !timer !stoptimer")
+        channel.reply("^3!voterandom !goto !savepos !loadpos !maps !haste !removehaste !timer !stoptimer")
         return minqlx.RET_STOP_ALL
 
 
