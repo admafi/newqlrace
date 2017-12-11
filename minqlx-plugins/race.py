@@ -272,6 +272,9 @@ class race(minqlx.Plugin):
             self.set_cvar("g_startingWeapons", "131")
             infinite = "0" if map_name in ("mj_xlarve", "raus_egypt") else "1"
             self.set_cvar("g_infiniteAmmo", infinite)
+        elif map_name == "moonstone":
+            self.set_cvar("g_startingWeapons", "155")
+            self.set_cvar("g_infiniteAmmo", "1")
         elif map_name == "modcomp019":
             self.set_cvar("g_startingWeapons", "200")
             self.set_cvar("g_infiniteAmmo", "0")
