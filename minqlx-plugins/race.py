@@ -69,7 +69,8 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket",
             "bdfcomp042", "dfwc2017_6", "dfwc04_2", "cuddles_7", "cuddles_8", "cuddles_6")
 
-G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "ump1ctf5", "ump1ctf6", "ump1ctf7", "ump1ctf8")
+G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "ump1ctf5", "ump1ctf6", "ump1ctf7", "ump1ctf8",
+                 "ump3ctf1", "ump3ctf2", "ump3ctf3", "ump3ctf4", "ump3ctf5", "ump3ctf6", "ump3ctf7")
 
 PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
