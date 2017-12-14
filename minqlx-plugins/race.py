@@ -251,6 +251,7 @@ class race(minqlx.Plugin):
         if map_name in DMFLAGS:
             self.set_cvar("dmflags", "0")
             self.set_cvar("g_battleSuitDampen", "0")
+            self.set_cvar("g_dropPowerups", "0")
         else:
             self.set_cvar("dmflags", "28")
         # Set to fix issues with getting in a dying loop on respawn
