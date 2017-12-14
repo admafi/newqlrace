@@ -1108,7 +1108,6 @@ class race(minqlx.Plugin):
 
         if player.team != "spectator":
             if player.steam_id in self.savepos:
-                player.score = 2147483647
                 self.move_player[player.steam_id] = self.savepos[player.steam_id]
                 minqlx.player_spawn(player.id)  # respawn player so he can't cheat
             else:
