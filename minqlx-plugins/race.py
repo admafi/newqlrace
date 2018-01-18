@@ -25,7 +25,9 @@ HASTE = ("df_handbreaker4", "handbreaker4_long", "handbreaker", "df_piyofunjumps
          "snorjumpb1", "snorjump2", "piyojump2", "woftct", "apex", "runkull", "snakejumps2", "applejump_b1",
          "zerojumps_b1", "bumblbee", "r7_golem", "r7_endless", "mj_xlarve", "airmaxjumps2", "alexjumps", "brokenrun",
          "modcomp019", "redemption", "r7_hui", "buttscar", "alkpotehasteweaps", "mistes_acr16", "bull_runner",
-         "dfwc2017_6", "hastedick", "hastedick_slick")
+         "dfwc2017_6", "hastedick", "hastedick_slick", "r7_bfgf")
+
+QUAD_HASTE = ("r7_bfgf")
 
 # physics strings used for vql and pql args on rank and related functions
 PHYSICS_PQL_STRINGS = ['pql', 'turbo', 'p', 't']
@@ -503,10 +505,13 @@ class race(minqlx.Plugin):
 
             if map_name == "wsm":
                 player.powerups(quad=999999)
-            elif map_name == "mega_rl2":
+            elif map_name == "mega_12":
                 player.powerups(quad=999999)
             elif map_name in HASTE:
                 player.powerups(haste=999999)
+            elif map_name in QUAD_HASTE:
+                player.powerups(haste=999999)
+                player.powerups(quad=999999)
             elif map_name in BATTLESUIT30:
                 player.powerups(battlesuit=30)
             elif map_name == "bokluk":
