@@ -1,5 +1,5 @@
 #!/bin/bash
-cd ~/qlds/baseq3 || exit 1
+cd ~/Steam/steamapps/common/qlds/baseq3 || exit 1
 source private.sh || exit 1
 
 if [[ $1 == turbo ]]; then
@@ -30,19 +30,19 @@ else
     exit 1
 fi
 
-exec /home/steam/qlds/run_server_x64_minqlx.sh \
+exec ~/Steam/steamapps/common/qlds/run_server_x64_minqlx.sh \
     +set com_hunkmegs 66 \
     +set fs_homepath /home/steam/.quakelive/$gamePort \
     +set net_port $gamePort \
     +set sv_hostname "QLRace.com $LOCATION - $mode #$2" \
     +set sv_mappoolFile $mapPool \
-    +set sv_maxclients 18 \
+    +set sv_maxclients 12 \
     +set sv_tags $tags \
     +set zmq_rcon_enable 1 \
-    +set zmq_rcon_password $RCON_PW \
+    +set zmq_rcon_password "" \
     +set zmq_rcon_port $rconPort \
     +set zmq_stats_enable 1 \
-    +set zmq_stats_password $STATS_PW \
+    +set zmq_stats_password "" \
     +set qlx_cleverBotKey $CB_KEY \
     +set qlx_cleverBotUser $CB_USER \
     +set qlx_raceKey $RACE_KEY \
