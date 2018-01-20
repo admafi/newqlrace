@@ -8,9 +8,9 @@ exec /home/steam/Steam/steamapps/common/qlds/run_server_x64_minqlx.sh \
 +set net_port $gameport \
 +set fs_homepath /home/steam/.quakelive/$gameport \
 +set zmq_rcon_enable 1 \
-+set zmq_rcon_password "rconrconasdasdgoose" \
++set zmq_rcon_password "" \
 +set zmq_rcon_port $rconport \
 +set zmq_stats_enable 1 \
-+set zmq_stats_password "rconstatshydraasd" \
++set zmq_stats_password "" \
 +set zmq_stats_port $gameport \
 +set qlx_owner "76561198021129477"
