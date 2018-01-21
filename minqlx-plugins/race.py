@@ -24,7 +24,10 @@ HASTE = ("df_handbreaker4", "handbreaker4_long", "handbreaker", "df_piyofunjumps
          "eatme", "wernerjump", "bloodydave", "tranquil", "et_map2", "et_map3", "et_map4", "et_map5", "zeel_ponpon",
          "snorjumpb1", "snorjump2", "piyojump2", "woftct", "apex", "runkull", "snakejumps2", "applejump_b1",
          "zerojumps_b1", "bumblbee", "r7_golem", "r7_endless", "mj_xlarve", "airmaxjumps2", "alexjumps", "brokenrun",
-         "modcomp019", "redemption", "r7_hui", "buttscar", "alkpotehasteweaps", "mistes_acr16", "bull_runner")
+         "modcomp019", "redemption", "r7_hui", "buttscar", "alkpotehasteweaps", "mistes_acr16", "bull_runner",
+         "dfwc2017_6", "hastedick", "hastedick_slick", "r7_bfgf")
+
+QUAD_HASTE = ("r7_bfgf")
 
 # physics strings used for vql and pql args on rank and related functions
 PHYSICS_PQL_STRINGS = ['pql', 'turbo', 'p', 't']
@@ -35,7 +38,10 @@ G_ONLY = (
     "k4n", "ndql", "dfwc_xlarve", "kairos_jackson", "acc_donut", "concentration", "l1thrun", "gnj_torture4", "glados",
     "dfwc2017_2", "elco_eh", "elco_kab", "elco_woody", "hyper_atmospace", "dfwc2017_4")
 BFG_FIX = ("aa_endless")
-DMFLAGS = {"odessa", "gpl_arcaon", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral"}
+# Fixes respawn death loops by delaying auto respawn
+RESPAWN_FIX = ("cuddles_3")
+DMFLAGS = {"odessa", "gpl_arcaon", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral", "dfwc2017_6", "dfwc04_2",
+           "cuddles_6"}
 BATTLESUIT30 = {"gpl_arcaon"}
 G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr", "df_handbreaker4", "df_lickape",
             "df_lickfudge", "df_lickhq", "df_lickrevived", "df_lickrevived2", "df_licksux", "df_nodown",
@@ -63,7 +69,12 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "chile13", "chile15", "chile18", "chile20", "chile25", "gpl_strangeland_strafe", "architects_grinders2",
             "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18",
             "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket",
-            "bdfcomp042")
+            "bdfcomp042", "dfwc2017_6", "dfwc04_2", "cuddles_7", "cuddles_8", "cuddles_6", "eksha_p0thunter", "jolly_holiday")
+
+G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "ump1ctf5", "ump1ctf6", "ump1ctf7", "ump1ctf8",
+                 "ump3ctf1", "ump3ctf2", "ump3ctf3", "ump3ctf4", "ump3ctf5", "ump3ctf6", "ump3ctf7", "coldwarctf", "halterra1",
+                 "kineterra1", "map_dreadnought", "map_leviathan", "map_tahuge", "q3ctfp22mav", "nor3ctf1", "q3f_swamp",
+                 "fi_ctf1m", "ump2ctf2", "ump2ctf3", "ump2ctf4", "ump2ctf5")
 
 PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
@@ -71,10 +82,11 @@ PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "d
       "prince_quake", "raus_egypt")
 RL = ("runstolfer", "charon", "charon_bw", "kozmini1", "kozmini2", "kozmini3", "kozmini4", "kozmini5", "kozmini6",
       "kozmini7", "kozmini8", "jumpspace", "pornstarghost2", "mistes_acr16", "futs_bunker_df", "futs_bunker_slick_df",
-      "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon")
+      "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon",
+      "bug11", "bug11_slick", "bug22", "bug22_slick", "cliff15")
 GL = ("grenadorade", "uprising", "xlarve06", "vivid")
 
-_RE_POWERUPS = re.compile(r'print ".+\^3 got the (Haste|Battle Suit|Quad Damage)!\^7\n"')
+_RE_POWERUPS = re.compile(r'print ".+\^3 got the (Haste|Battle Suit|Quad Damage|Invisibility|Regeneration)!\^7\n"')
 
 
 class race(minqlx.Plugin):
@@ -83,7 +95,6 @@ class race(minqlx.Plugin):
         self.add_hook("new_game", self.handle_new_game)
         self.add_hook("map", self.handle_map)
         self.add_hook("vote_called", self.handle_vote_called)
-        self.add_hook("vote_ended", self.handle_vote_ended)
         self.add_hook("server_command", self.handle_server_command)
         self.add_hook("stats", self.handle_stats, priority=minqlx.PRI_HIGHEST)
         self.add_hook("player_spawn", self.handle_player_spawn, priority=minqlx.PRI_HIGHEST)
@@ -111,6 +122,7 @@ class race(minqlx.Plugin):
         self.add_command(("reset", "resettime", "resetscore"), self.cmd_reset)
         self.add_command(("commands", "cmds", "help"), self.cmd_commands, priority=minqlx.PRI_HIGH)
         self.add_command("vote", self.cmd_vote_random_map, usage="<n> | Use !randommap before !vote")
+        self.add_command("voterandom", self.cmd_callvote_random_map)
 
         self.set_cvar_once("qlx_raceMode", "0")  # 0 = Turbo/PQL, 2 = Classic/VQL
         self.set_cvar_once("qlx_raceBrand", "QLRace.com")  # Can set to "" to not brand
@@ -131,6 +143,7 @@ class race(minqlx.Plugin):
         """Brands map title on new game."""
         map_name = self.game.map.lower()
         self.brand_map(map_name)
+        self.set_cvar("g_gravity", "800")
 
     def handle_map(self, map_name, factory):
         """Brands map title and updates list of race maps on map change.
@@ -175,11 +188,6 @@ class race(minqlx.Plugin):
         else:
             if "puzzlemap" in self.plugins:
                 minqlx.unload_plugin("puzzlemap")
-
-        if map_name in DMFLAGS:
-            self.set_cvar("dmflags", "0")
-        else:
-            self.set_cvar("dmflags", "28")
 
         if map_name == "walkathon":
             self.set_cvar("g_respawn_delay_min", "1000")
@@ -243,6 +251,16 @@ class race(minqlx.Plugin):
             self.set_cvar("g_battlesuitDampen", "0.25")
             self.set_cvar("g_startinghealthbonus", "0")
 
+        if map_name in DMFLAGS:
+            self.set_cvar("dmflags", "0")
+            self.set_cvar("g_battleSuitDampen", "0")
+            self.set_cvar("g_dropPowerups", "0")
+        else:
+            self.set_cvar("dmflags", "28")
+        # Set to fix issues with getting in a dying loop on respawn
+        if map_name in RESPAWN_FIX:
+            self.set_cvar("g_respawn_delay_max", "9999")
+
     def set_starting_weapons(self, map_name):
         if map_name in G_AND_MG:
             self.set_cvar("g_startingWeapons", "3")
@@ -263,6 +281,9 @@ class race(minqlx.Plugin):
             self.set_cvar("g_startingWeapons", "131")
             infinite = "0" if map_name in ("mj_xlarve", "raus_egypt") else "1"
             self.set_cvar("g_infiniteAmmo", infinite)
+        elif map_name in G_MG_PG_RL_GL:
+            self.set_cvar("g_startingWeapons", "155")
+            self.set_cvar("g_infiniteAmmo", "1")
         elif map_name == "modcomp019":
             self.set_cvar("g_startingWeapons", "200")
             self.set_cvar("g_infiniteAmmo", "0")
@@ -271,6 +292,12 @@ class race(minqlx.Plugin):
             infinite = "0" if map_name in ("pornstarghost2", "mistes_acr16") else "1"
             self.set_cvar("g_infiniteAmmo", infinite)
         elif map_name == "elco_arca":
+            self.set_cvar("g_startingWeapons", "19")
+            self.set_cvar("g_infiniteAmmo", "0")
+        elif map_name == "slickplane2_strafe":
+            self.set_cvar("g_startingWeapons", "19")
+            self.set_cvar("g_infiniteAmmo", "0")
+        elif map_name == "slickplane2":
             self.set_cvar("g_startingWeapons", "19")
             self.set_cvar("g_infiniteAmmo", "0")
         elif map_name == "rtairs":
@@ -389,6 +416,10 @@ class race(minqlx.Plugin):
             self.set_cvar("g_startingAmmo_rl", "5")
         elif map_name == "elco_arca":
             self.set_cvar("g_startingAmmo_rl", "2")
+        elif map_name == "slickplane2_strafe":
+            self.set_cvar("g_startingAmmo_rl", "4")
+        elif map_name == "slickplane2":
+            self.set_cvar("g_startingAmmo_rl", "4")
         elif map_name == "rtairs":
             self.set_cvar("g_startingAmmo_rl", "2")
         elif map_name == "lovet_arcaon":
@@ -435,35 +466,16 @@ class race(minqlx.Plugin):
         else:
             self.set_cvar("g_startingAmmo_pg", "50")
 
-    def handle_vote_ended(self, votes, vote, args, passed):
-        if vote.lower() in PHYSICS_PQL_STRINGS and passed:
-            self.game.factory = "qlrace_turbo"
-            self.set_cvar("qlx_raceMode", "0")
-            minqlx.console_command("map_restart")
-            return minqlx.RET_STOP_ALL
-        elif vote.lower() in PHYSICS_VQL_STRINGS and passed:
-            self.game.factory = "qlrace_classic"
-            self.set_cvar_once("qlx_raceMode", "2")
-            minqlx.console_command("map_restart")
-            return minqlx.RET_STOP_ALL
-
     def handle_vote_called(self, player, vote, args):
         """Cancels the vote when a duplicated map is voted for."""
         if vote.lower() == "map" and len(args) > 0:
             disabled_maps = ("q3w2", "q3w3", "q3w5", "q3w7", "q3wcp1", "q3wcp14", "q3wcp17", "q3wcp18",
                              "q3wcp22", "q3wcp23", "q3wcp5", "q3wcp9", "q3wxs1", "q3wxs2", "wintersedge",
-                             "red_planet_escape_1")
+                             "red_planet_escape_1", "ump3ctf4")
             map_name = args.split()[0]
             if map_name.lower() in disabled_maps:
                 player.tell("^3{} ^2is disabled(duplicate map).".format(map_name))
                 return minqlx.RET_STOP_ALL
-        if (vote.lower() in PHYSICS_PQL_STRINGS and self.game.factory == "qlrace_turbo") or\
-            (vote.lower() in PHYSICS_VQL_STRINGS and self.game.factory == "qlrace_classic"):
-            # Invalid vote -> Stop the entire vote
-            return minqlx.RET_STOP_ALL
-        # else:
-        #     # Valid vote, but stop other handlers?
-        #     return minqlx.STOP
 
     def handle_server_command(self, player, cmd):
         """Stops server printing powerup messages."""
@@ -493,10 +505,13 @@ class race(minqlx.Plugin):
 
             if map_name == "wsm":
                 player.powerups(quad=999999)
-            elif map_name == "mega_rl2":
+            elif map_name == "mega_12":
                 player.powerups(quad=999999)
             elif map_name in HASTE:
                 player.powerups(haste=999999)
+            elif map_name in QUAD_HASTE:
+                player.powerups(haste=999999)
+                player.powerups(quad=999999)
             elif map_name in BATTLESUIT30:
                 player.powerups(battlesuit=30)
             elif map_name == "bokluk":
@@ -561,6 +576,11 @@ class race(minqlx.Plugin):
 
         # makes new dict with dead players removed
         self.goto = {p: score for p, score in self.goto.items() if self.player(p).health > 0}
+
+    def cmd_callvote_random_map(self, player, msg, channel):
+        """Callvotes a random map."""
+        map_name = random.choice(self.maps)
+        minqlx.client_command(player.id, "cv map {}".format(map_name))
 
     def cmd_disabled(self, player, msg, channel):
         """Disables !slap and !slay."""
@@ -1095,7 +1115,6 @@ class race(minqlx.Plugin):
 
         if player.team != "spectator":
             if player.steam_id in self.savepos:
-                player.score = 2147483647
                 self.move_player[player.steam_id] = self.savepos[player.steam_id]
                 minqlx.player_spawn(player.id)  # respawn player so he can't cheat
             else:
@@ -1169,7 +1188,7 @@ class race(minqlx.Plugin):
     def cmd_commands(self, player, msg, channel):
         """Outputs list of race commands."""
         channel.reply("Commands: ^3!(s)pb !(s)rank !(s)top !old(s)top !(s)all !(s)ranktime !(s)avg !randommap !recent")
-        channel.reply("^3!goto !savepos !loadpos !maps !haste !removehaste !timer !stoptimer")
+        channel.reply("^3!voterandom !goto !savepos !loadpos !maps !haste !removehaste !timer !stoptimer")
         return minqlx.RET_STOP_ALL
 
 
