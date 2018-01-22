@@ -177,7 +177,7 @@ class race_test(minqlx.Plugin):
 
         for p in self.frame:
             ms = (self.current_frame - self.frame[p]) * 25
-            self.player(p).center_print(race_test. time_string(ms))
+            self.player(p).center_print(race_test.time_string(ms))
 
         # makes new dict with dead players removed
         self.goto = {p: score for p, score in self.goto.items() if self.player(p).health > 0}
@@ -373,10 +373,10 @@ class race_test(minqlx.Plugin):
                     wr = record["time"]
                     time_diff = ""
                 elif record["rank"] > 1:
-                    time_diff = "+{}".format(race_test. time_string(record["time"] - wr))
+                    time_diff = "+{}".format(race_test.time_string(record["time"] - wr))
 
                 output.append("^3{:>2}. ^7{:30} ^3{:>10} ^1{:>12}"
-                              .format(record["rank"], record["name"], race_test. time_string(record["time"]), time_diff))
+                              .format(record["rank"], record["name"], race_test.time_string(record["time"]), time_diff))
             except IndexError:
                 break
 
@@ -420,10 +420,10 @@ class race_test(minqlx.Plugin):
                     wr = record["time"]
                     time_diff = ""
                 elif record["rank"] > 1:
-                    time_diff = "+{}".format(race_test. time_string(record["time"] - wr))
+                    time_diff = "+{}".format(race_test.time_string(record["time"] - wr))
 
                 output.append("^3{:>2}. ^7{:30} ^3{:>10} ^1{:>12}"
-                              .format(record["rank"], record["name"], race_test. time_string(record["time"]), time_diff))
+                              .format(record["rank"], record["name"], race_test.time_string(record["time"]), time_diff))
             except IndexError:
                 break
 
@@ -443,7 +443,7 @@ class race_test(minqlx.Plugin):
             for record in records:
                 if record["player_id"] in players:
                     times.append(" ^3{}. ^7{} ^2{}".format(record["rank"], record["name"],
-                                                           race_test. time_string(record["time"])))
+                                                           race_test.time_string(record["time"])))
             if not weapons:
                 map_name += "^2(strafe)"
             if physics:
@@ -960,10 +960,10 @@ class RaceRecords:
         if rank != 1:
             time_diff = str(time - self.first_time)
             time_diff = time_diff.zfill(3)
-            time_diff = "^0[^1+" + race_test. time_string(time_diff) + "^0]"
+            time_diff = "^0[^1+" + race_test.time_string(time_diff) + "^0]"
         else:
             time_diff = ""
-        time = race_test. time_string(time)
+        time = race_test.time_string(time)
         strafe = "^2(strafe)" if not self.weapons else ""
         tied = "tied " if tied else ""
         return "^7{} ^2is {}rank ^3{} ^2of ^3{} ^2with ^3{}{} ^2on ^3{}{}" \
