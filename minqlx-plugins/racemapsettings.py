@@ -9,10 +9,6 @@ Contains the old settings to be used for existing maps and is able to load setti
 """
 
 import minqlx
-import requests
-import time
-import random
-import re
 
 
 class racemapsettings(minqlx.Plugin):
@@ -160,13 +156,6 @@ class racemapsettings(minqlx.Plugin):
             self.set_cvar("g_maxFlightFuel", "3000")
         else:
             self.set_cvar("g_maxFlightFuel", "16000")
-
-        if map_name == "gl":
-            if self.get_cvar("g_startingHealth", int) != 3000:
-                self.map_restart = True
-            self.set_cvar("g_startingHealth", "3000")
-        else:
-            self.set_cvar("g_startingHealth", "100")
 
         if map_name in ("track_comp", "track_comp_barriers"):
             self.set_cvar("pmove_noPlayerClip", "0")

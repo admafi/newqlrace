@@ -94,6 +94,14 @@ class race_test(minqlx.Plugin):
             return
         self.set_cvar("pmove_chainjump", "0")
 
+        # This one is not in the racemapsettings plugin because it sets self.map_restart
+        if map_name == "gl":
+            if self.get_cvar("g_startingHealth", int) != 3000:
+                self.map_restart = True
+            self.set_cvar("g_startingHealth", "3000")
+        else:
+            self.set_cvar("g_startingHealth", "100")
+
     def handle_server_command(self, player, cmd):
         """Stops server printing powerup messages."""
         if _RE_POWERUPS.fullmatch(cmd):
