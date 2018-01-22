@@ -1,4 +1,5 @@
 #!/bin/bash
+#we are currently not using this but runservertr
 cd ~/Steam/steamapps/common/qlds/baseq3 || exit 1
 source private.sh || exit 1
 
