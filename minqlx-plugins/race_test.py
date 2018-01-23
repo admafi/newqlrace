@@ -670,8 +670,11 @@ class race_test(minqlx.Plugin):
         Player needs to kill themselves/rejoin for a time to count."""
         map_name = self.game.map.lower()
         try:
-            goto_disabled = self._loaded_plugins['racemapsettings'].GOTO_DISABLED
-            if map_name in goto_disabled:
+            racemapsettings_plugin = self._loaded_plugins['racemapsettings']
+            goto_disabled = racemapsettings_plugin.GOTO_DISABLED
+            using_race_file = racemapsettings_plugin.using_race_file
+            goto_disabled2 = racemapsettings_plugin.goto_disabled
+            if map_name in goto_disabled or using_race_file and goto_disabled2:
                 player.tell("^1!goto is disabled on {}".format(map_name))
                 return minqlx.RET_STOP_ALL
         except KeyError:
@@ -718,8 +721,11 @@ class race_test(minqlx.Plugin):
     def cmd_loadpos(self, player, msg, channel):
         """Loads saved position."""
         try:
-            goto_disabled = self._loaded_pluginsp['racemapsettings'].GOTO_DISABLED
-            if self.game.map.lower() in goto_disabled:
+            racemapsettings_plugin = self._loaded_plugins['racemapsettings']
+            goto_disabled = racemapsettings_plugin.GOTO_DISABLED
+            using_race_file = racemapsettings_plugin.using_race_file
+            goto_disabled2 = racemapsettings_plugin.goto_disabled
+            if self.game.map.lower() in goto_disabled or using_race_file and goto_disabled2:
                 player.tell("^1!loadpos is disabled on {}".format(self.game.map))
                 return minqlx.RET_STOP_ALL
         except KeyError:

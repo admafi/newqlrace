@@ -9,9 +9,40 @@ Contains the old settings to be used for existing maps and is able to load setti
 """
 
 import minqlx
+import os
+from zipfile import ZipFile
+import configparser
+
+# server pk3 root directory
+PK3_ROOT = "D:\Libraries\Documents\pycharmprojects\\newqlrace\\testdata"
+# Dict with default settings for .race files.
+# Settings defaulting to None will use the server's current cvar setting as their default value.
+RACE_FILE_SETTINGS_DEFAULTS = {
+    'infinite_ammo': 1,
+    'weapons': 3,
+    'mg_ammo': None,
+    'sg_ammo': None,
+    'gl_ammo': None,
+    'rl_ammo': None,
+    'lg_ammo': None,
+    'rg_ammo': None,
+    'pg_ammo': None,
+    'bfg_ammo': None,
+    'ng_ammo': None,
+    'pl_ammo': None,
+    'hmg_ammo': None,
+    'haste_duration': 0,
+    'quad_duration': 0,
+    'battlesuit_duration': 0,
+    'regeneration_duration': 0,
+    'flight_fuel': 0,
+    'max_flight_fuel': 16000,
+    'self_damage': 0,
+    'goto_disabled': 0
+}
 
 
-class racemapsettings(minqlx.Plugin):
+class racemapsettings():#minqlx.Plugin):
     # Maps with the !goto command disabled.
     GOTO_DISABLED = ["ndql", "bounce", "df_coldrun", "wernerjump", "puzzlemap", "track_comp", "track_comp_barriers",
                      "track_comp_weap", "gl", "10towers", "acc_donut"]
@@ -106,16 +137,65 @@ class racemapsettings(minqlx.Plugin):
 
     def __init__(self):
         super().__init__()
-        self.add_hook("map", self.handle_map)
-        self.add_hook("vote_called", self.handle_vote_called)
-        self.add_hook("player_spawn", self.handle_player_spawn)
-        self.add_hook("client_command", self.handle_client_command)
-        self.add_command(("haste", "removehaste"), self.cmd_haste)
+        # self.add_hook("map", self.handle_map)
+        # self.add_hook("vote_called", self.handle_vote_called)
+        # self.add_hook("player_spawn", self.handle_player_spawn)
+        # self.add_hook("client_command", self.handle_client_command)
+        # self.add_command(("haste", "removehaste"), self.cmd_haste)
+
+        # Scan pk3s for .race map settings files.
+        self.settings_files = {}
+        self.index_race_map_settings_files()
+        # Set to true if map settings were loaded from a .race file.
+        # In that case the below class variables are to be used instead of looking
+        # up settings in a hard coded list.
+        self.using_race_file = False
+        # Holds powerup durations for current map
+        self.quad_duration = 0
+        self.haste_duration = 0
+        self.battlesuit_duration = 0
+        self.regeneration_duration = 0
+        self.flight_fuel = 0
+        # Is set to true if goto is disabled on the current map
+        self.goto_disabled = False
+        # Is set to true when self damage is disabled on the current map
+        self.self_damage = False
 
     def handle_map(self, map_name, factory):
         """Sets correct starting weapons and ammo on map load."""
         if self.game.factory not in ("qlrace_classic", "qlrace_turbo"):
             return
+        # Look for .race map settings file and use that if it exists
+        # Otherwise fall back to the old method
+        try:
+            settings_dict = self.parse_race_map_settings_file(map_name)
+            self.apply_race_map_settings(settings_dict)
+            # Apply settings that need to be applied regardless of map
+            # These were taken from old_handle_map
+            if self.get_cvar("qlx_raceMode", int) == 0:
+                self.set_cvar("g_velocity_gl", "800")
+                self.set_cvar("pmove_rampJump", "1")
+                self.set_cvar("g_knockback_rl_self", "1.2")
+                self.set_cvar("pmove_jumptimedeltamin", "100.0")
+            elif self.get_cvar("qlx_raceMode", int) == 2:
+                self.set_cvar("pmove_rampJump", "0")
+                self.set_cvar("g_knockback_rl_self", "1.0")
+            if "puzzlemap" in self.plugins:
+                minqlx.unload_plugin("puzzlemap")
+            self.set_cvar("g_respawn_delay_min", "10")
+            self.set_cvar("g_respawn_delay_max", "10")
+            self.set_cvar("pmove_noPlayerClip", "1")
+            self.set_cvar("g_knockback_gl_self", "1.10")
+            self.set_cvar("g_knockback_pg_self", "1.3")
+            if not self.self_damage:
+                self.set_cvar("g_battlesuitDampen", "0.25")
+            self.set_cvar("g_startinghealthbonus", "0")
+        except ValueError:
+            # No .race file exists
+            self.using_race_file = False
+            self.old_handle_map(map_name, factory)
+
+    def old_handle_map(self, map_name, factory):
         self.set_starting_weapons(map_name)
         self.set_starting_ammo(map_name)
         if self.get_cvar("qlx_raceMode", int) == 0:
@@ -419,27 +499,42 @@ class racemapsettings(minqlx.Plugin):
         """Give powerups based on the map."""
         map_name = self.game.map.lower()
         if player.team == "free":
-            if map_name == "wsm":
-                player.powerups(quad=999999)
-            elif map_name == "mega_12":
-                player.powerups(quad=999999)
-            elif map_name in self.HASTE:
-                player.powerups(haste=999999)
-            elif map_name in self.QUAD_HASTE:
-                player.powerups(haste=999999)
-                player.powerups(quad=999999)
-            elif map_name in self.BATTLESUIT30:
-                player.powerups(battlesuit=30)
-            elif map_name == "bokluk":
-                player.flight(fuel=3500, max_fuel=3500)
-            elif map_name == "kraglejump":
-                player.powerups(haste=60)  # some stages need haste and some don't, so 60 is a compromise...
+            if self.using_race_file:
+                kwargs = {}
+                if self.quad_duration > 0:
+                    kwargs['quad'] = self.quad_duration
+                if self.haste_duration > 0:
+                    kwargs['haste'] = self.haste_duration
+                if self.regeneration_duration > 0:
+                    kwargs['regeneration'] = self.regeneration_duration
+                if self.battlesuit_duration > 0:
+                    kwargs['battlesuit'] = self.battlesuit_duration
+                player.powerups(**kwargs)
+                if self.flight_fuel:
+                    player.flight(fuel=self.flight_fuel)
+            else:
+                # No .race file loaded, use old method
+                if map_name == "wsm":
+                    player.powerups(quad=999999)
+                elif map_name == "mega_12":
+                    player.powerups(quad=999999)
+                elif map_name in self.HASTE:
+                    player.powerups(haste=999999)
+                elif map_name in self.QUAD_HASTE:
+                    player.powerups(haste=999999)
+                    player.powerups(quad=999999)
+                elif map_name in self.BATTLESUIT30:
+                    player.powerups(battlesuit=30)
+                elif map_name == "bokluk":
+                    player.flight(fuel=3500, max_fuel=3500)
+                elif map_name == "kraglejump":
+                    player.powerups(haste=60)  # some stages need haste and some don't, so 60 is a compromise...
 
     def handle_client_command(self, player, cmd):
         """Spawns player right away if they use /kill and self damage is disabled."""
         if cmd == "kill" and player.team == "free":
             map_name = self.game.map.lower()
-            if map_name not in self.DMFLAGS:
+            if map_name not in self.DMFLAGS or self.using_race_file and not self.self_damage:
                 minqlx.player_spawn(player.id)
 
     def cmd_haste(self, player, msg, channel):
@@ -454,3 +549,117 @@ class racemapsettings(minqlx.Plugin):
         else:
             player.tell("^1You cannot use ^3{} ^1on non haste maps.".format(msg[0]))
         return minqlx.RET_STOP_ALL
+
+    def index_race_map_settings_files(self):
+        """Search all pk3s in the pk3 root for <bsp_name>.race files.
+
+        Returns:
+            dict -- {key=bsp_name: value=pk3_path, ...}
+        """
+        # get paths to all pk3 files on the server
+        pk3_paths = []
+        for directory in [d for d in os.listdir(PK3_ROOT) if os.path.isdir(os.path.join(PK3_ROOT, d))]:
+            pk3_paths += [os.path.join(PK3_ROOT, directory, x) for x in os.listdir(os.path.join(PK3_ROOT, directory))
+                          if '.pk3' in x]
+        # store available .race files.
+        self.settings_files = {}
+        for pk3_path in pk3_paths:
+            with ZipFile(pk3_path, 'r') as pk3:
+                # get the map names
+                map_names = [os.path.splitext(x.split('/')[-1])[0] for x in pk3.namelist() if '.bsp' in x]
+                # look for any corresponding .race files
+                for file in pk3.namelist():
+                    name, ext = os.path.splitext(file.split('/')[-1])
+                    if ext == '.race' and name in map_names:
+                        self.settings_files[name] = pk3_path
+
+    def parse_race_map_settings_file(self, map_name):
+        """Reads the map settings to be used from the .race file.
+        Any optional settings that are undefined are given a default value.
+        This function is to be called during handle_map
+
+        Params:
+            map_name (str) -- the name of the map/bsp file
+
+        Returns:
+            dict -- {key=setting, value=value}
+
+        Raises:
+            ValueError -- when map_name is not in self.settings_files
+        """
+        # Check if a .race file for the map exists
+        try:
+            pk3_path = self.settings_files[map_name]
+        except KeyError:
+            raise ValueError(f'{map_name} supplied no .race map settings file')
+        # Open map_name.race in the pk3 and extract the settings
+        with ZipFile(pk3_path, 'r') as pk3:
+            # Insert a dummy section header so we can use the built in configparser module.
+            config_string = '[dummy section]\n' + pk3.read(f'{map_name}.race').decode('utf-8')
+        config = configparser.ConfigParser()
+        config.read_string(config_string)
+        settings_dict = dict(config.items('dummy section'))
+        # Assign default values to undefined settings
+        omitted_settings = list(filter(lambda x: x not in list(settings_dict.keys()),
+                                       list(RACE_FILE_SETTINGS_DEFAULTS.keys())))
+        settings_dict.update({x: RACE_FILE_SETTINGS_DEFAULTS[x] for x in omitted_settings})
+        return settings_dict
+
+    def apply_race_map_settings(self, settings_dict):
+        """Applies all settings in the given settings_dict to the server"""
+        # Set infiniteammo
+        self.set_cvar('g_infiniteAmmo', str(settings_dict['infinite_ammo']))
+        # Set starting weapons
+        self.set_cvar('g_startingWeapons', str(settings_dict['weapons']))
+        # Set starting ammo
+        if settings_dict['mg_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_mg', str(settings_dict['mg_ammo']))
+        if settings_dict['sg_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_sg', str(settings_dict['sg_ammo']))
+        if settings_dict['gl_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_gl', str(settings_dict['gl_ammo']))
+        if settings_dict['rl_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_rl', str(settings_dict['rl_ammo']))
+        if settings_dict['lg_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_lg', str(settings_dict['lg_ammo']))
+        if settings_dict['rg_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_rg', str(settings_dict['rg_ammo']))
+        if settings_dict['pg_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_pg', str(settings_dict['pg_ammo']))
+        if settings_dict['bfg_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_bfg', str(settings_dict['bfg_ammo']))
+        if settings_dict['ng_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_ng', str(settings_dict['ng_ammo']))
+        if settings_dict['pl_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_pl', str(settings_dict['pl_ammo']))
+        if settings_dict['hmg_ammo'] is not None:
+            self.set_cvar('g_startingAmmo_hmg', str(settings_dict['hmg_ammo']))
+        # Save powerup durations
+        # These are given on player spawn by handle_player_spawn
+        self.quad_duration = min(int(settings_dict['quad_duration']), 999999)
+        self.haste_duration = min(int(settings_dict['haste_duration']), 999999)
+        self.battlesuit_duration = min(int(settings_dict['battlesuit_duration']), 999999)
+        self.regeneration_duration = min(int(settings_dict['regeneration_duration']), 999999)
+        self.flight_fuel = int(settings_dict['flight_fuel'])
+        if settings_dict['max_flight_fuel'] is not None:
+            self.set_cvar("g_maxFlightFuel", str(settings_dict['max_flight_fuel']))
+        # Self damage settings
+        if int(settings_dict['self_damage']) == 1:
+            self.set_cvar("dmflags", "0")
+            self.set_cvar("g_battleSuitDampen", "0")
+            self.set_cvar("g_dropPowerups", "0")
+            self.self_damage = True
+        else:
+            self.set_cvar("dmflags", "28")
+            self.self_damage = False
+        # Goto settings
+        if int(settings_dict['goto_disabled']) == 1:
+            self.goto_disabled = True
+        else:
+            self.goto_disabled = False
+        self.using_race_file = True
+
+
+if __name__ == '__main__':
+    a = racemapsettings()
+    s = a.parse_race_map_settings_file('daanstrafe02')

@@ -1,0 +1,92 @@
+# Via a <bspname>.race file you can specify the settings to be used on qlrace.com servers when playing the map.
+# This .race file should use UTF-8 encoding.
+#
+# OPTIONS:
+# - Starting weapons and starting ammo can be selected.
+# - Starting powerups and duration can be selected.
+# - Self-damage can be turned on or off.
+#
+# Lines starting with # or ; are treated as comments
+# Uncomment an option to start using it.
+# Undefined options will use the default value.
+
+
+# ---------------------------------
+# --- Starting weapons and ammo ---
+# ---------------------------------
+# Turn infinite ammo on/off (1/0).
+# Sets g_infiniteammo.
+# Defaults to 1 when not given.
+
+#infinite_ammo = 1
+
+# Select the starting weapons by adding up the values after each weapon.
+# For example the default: 1 (gauntlet) + 2 (machine gun) = 3
+# Sets g_startingWeapons.
+# Defaults to gauntlet and mg when not given.
+# Gauntlet = 1
+# Machinegun = 2
+# Shotgun = 3
+# Grenade launcher = 8
+# Rocket launcher = 16
+# Lightning gun = 32
+# Railgun = 64
+# Plasmagun = 128
+# BFG = 256
+# Grappling hook = 512
+# Nailgun = 1024
+# Prox launcher = 2048
+# Chaingun = 4096
+
+#weapons = 3
+
+# Set starting ammo per weapon.
+# This setting has no effect if infinite_ammo = 1.
+# Use ammo = -1 to set infinite ammo per weapon instead of globally with infinite_ammo.
+# Sets g_startingAmmo_<weapon>.
+# Defaults to the server default values if not given.
+
+#mg_ammo = 100
+#sg_ammo = 50
+#gl_ammo = 25
+#rl_ammo = 50
+#lg_ammo = 150
+#rg_ammo = 25
+#pg_ammo = 100
+#bfg_ammo = 50
+#ng_ammo = 25
+#pl_ammo = 5
+#hmg_ammo = 150
+
+
+# --------------------------------------
+# --- Starting powerups and duration ---
+# --------------------------------------
+# Give haste, quad, battlesuit or regen by setting duration > 0.
+# Defaults to 0 if not given.
+
+#haste_duration = 0
+#quad_duration = 0
+#battlesuit_duration = 0
+#regeneration_duration = 0
+
+# Give flight by setting flight fuel > 0.
+# Defaults to 0 if not given.
+
+#flight_fuel = 0
+
+# Set the max flight fuel.
+# Some maps with flight pickups might need a higher than default setting.
+# Sets g_maxFlightFuel.
+# Defaults to the server default value if not given.
+
+#max_flight_fuel = 16000
+
+
+# -------------------
+# --- Self damage ---
+# -------------------
+# Turn self inflicted splash damage on/off (1/0)
+# Defaults to 0 if not given.
+
+#self_damage = 0
