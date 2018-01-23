@@ -42,7 +42,7 @@ RACE_FILE_SETTINGS_DEFAULTS = {
 }
 
 
-class racemapsettings():#minqlx.Plugin):
+class racemapsettings(minqlx.Plugin):
     # Maps with the !goto command disabled.
     GOTO_DISABLED = ["ndql", "bounce", "df_coldrun", "wernerjump", "puzzlemap", "track_comp", "track_comp_barriers",
                      "track_comp_weap", "gl", "10towers", "acc_donut"]
@@ -137,11 +137,11 @@ class racemapsettings():#minqlx.Plugin):
 
     def __init__(self):
         super().__init__()
-        # self.add_hook("map", self.handle_map)
-        # self.add_hook("vote_called", self.handle_vote_called)
-        # self.add_hook("player_spawn", self.handle_player_spawn)
-        # self.add_hook("client_command", self.handle_client_command)
-        # self.add_command(("haste", "removehaste"), self.cmd_haste)
+        self.add_hook("map", self.handle_map)
+        self.add_hook("vote_called", self.handle_vote_called)
+        self.add_hook("player_spawn", self.handle_player_spawn)
+        self.add_hook("client_command", self.handle_client_command)
+        self.add_command(("haste", "removehaste"), self.cmd_haste)
 
         # Scan pk3s for .race map settings files.
         self.settings_files = {}
@@ -658,8 +658,3 @@ class racemapsettings():#minqlx.Plugin):
         else:
             self.goto_disabled = False
         self.using_race_file = True
-
-
-if __name__ == '__main__':
-    a = racemapsettings()
-    s = a.parse_race_map_settings_file('daanstrafe02')
