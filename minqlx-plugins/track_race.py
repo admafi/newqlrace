@@ -41,20 +41,21 @@ class track_race(minqlx.Plugin):
 
     def handle_stats(self, stats):
         """Gets ZMQ stats."""
-        if stats["TYPE"] == "PLAYER_RACECOMPLETE" and self.mode in (0, 2):
-            self.enabled = True
-            self.map_name = self.game.map.lower()
-            if stats["DATA"]["WEAPONS_USED"]:
-                player = self.player(int(stats["DATA"]["STEAM_ID"]))
-                if player.score == stats["DATA"]["RACE_TIME"]:
-                    self.post_data(self.get_payload(stats["DATA"], self.mode, player.score))
-        elif stats["TYPE"] == "PLAYER_STATS" and self.enabled:
-            if stats["DATA"]["SCORE"] in (-1, 0, 2147483647):
-                return
+        if all(x in ['race', 'racemapsettings'] for x in list(self._loaded_plugins.keys())):
+            if stats["TYPE"] == "PLAYER_RACECOMPLETE" and self.mode in (0, 2):
+                self.enabled = True
+                self.map_name = self.game.map.lower()
+                if stats["DATA"]["WEAPONS_USED"]:
+                    player = self.player(int(stats["DATA"]["STEAM_ID"]))
+                    if player.score == stats["DATA"]["RACE_TIME"]:
+                        self.post_data(self.get_payload(stats["DATA"], self.mode, player.score))
+            elif stats["TYPE"] == "PLAYER_STATS" and self.enabled:
+                if stats["DATA"]["SCORE"] in (-1, 0, 2147483647):
+                    return
 
-            weapons = track_race.weapons_used(stats["DATA"]["WEAPONS"])
-            mode = self.mode if weapons else self.mode + 1
-            self.post_data(self.get_payload(stats["DATA"], mode, stats["DATA"]["SCORE"]))
+                weapons = track_race.weapons_used(stats["DATA"]["WEAPONS"])
+                mode = self.mode if weapons else self.mode + 1
+                self.post_data(self.get_payload(stats["DATA"], mode, stats["DATA"]["SCORE"]))
 
     def valid_mode(self):
         """Returns whether the current game type and race mode is valid."""
