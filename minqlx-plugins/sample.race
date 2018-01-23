@@ -90,3 +90,11 @@
 # Defaults to 0 if not given.
 
 #self_damage = 0
+
+
+# ----------------------------------
+# --- Disable !goto and !loadpos ---
+# ----------------------------------
+# Set to 1 to disable the !goto and !loadpos commands. 0 to enable
+# Defaults to 0 if not given.
+#goto_disabled = 0
