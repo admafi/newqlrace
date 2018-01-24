@@ -37,7 +37,7 @@ PHYSICS_STRINGS = PHYSICS_PQL_STRINGS + PHYSICS_VQL_STRINGS
 G_ONLY = (
     "k4n", "ndql", "dfwc_xlarve", "kairos_jackson", "acc_donut", "concentration", "l1thrun", "gnj_torture4", "glados",
     "dfwc2017_2", "elco_eh", "elco_kab", "elco_woody", "hyper_atmospace", "dfwc2017_4")
-BFG_FIX = ("aa_endless")
+BFG = ("lick_ape", "lick_revived", "lick_revived2")
 # Fixes respawn death loops by delaying auto respawn
 RESPAWN_FIX = ("cuddles_3")
 DMFLAGS = {"odessa", "gpl_arcaon", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral", "dfwc2017_6", "dfwc04_2",
@@ -69,7 +69,8 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "chile13", "chile15", "chile18", "chile20", "chile25", "gpl_strangeland_strafe", "architects_grinders2",
             "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18",
             "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket",
-            "bdfcomp042", "dfwc2017_6", "dfwc04_2", "cuddles_7", "cuddles_8", "cuddles_6", "eksha_p0thunter", "jolly_holiday")
+            "bdfcomp042", "dfwc2017_6", "dfwc04_2", "cuddles_7", "cuddles_8", "cuddles_6", "eksha_p0thunter", "jolly_holiday",
+            "lick_shit", "lick_sux", "lick_torr")
 
 G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "ump1ctf5", "ump1ctf6", "ump1ctf7", "ump1ctf8",
                  "ump3ctf1", "ump3ctf2", "ump3ctf3", "ump3ctf4", "ump3ctf5", "ump3ctf6", "ump3ctf7", "coldwarctf", "halterra1",
@@ -79,11 +80,12 @@ G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "u
 PG = ("think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
       "j4n_pgb", "elco_gbparadise", "flat_pgb", "kabcorp_longknight_pgb", "mu_mpitz", "ppgb", "azyme_gb",
-      "prince_quake", "raus_egypt")
+      "prince_quake", "raus_egypt", "lick_fudge", "lick_cells", "lick_cells2")
 RL = ("runstolfer", "charon", "charon_bw", "kozmini1", "kozmini2", "kozmini3", "kozmini4", "kozmini5", "kozmini6",
       "kozmini7", "kozmini8", "jumpspace", "pornstarghost2", "mistes_acr16", "futs_bunker_df", "futs_bunker_slick_df",
       "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon",
-      "bug11", "bug11_slick", "bug22", "bug22_slick", "cliff15")
+      "bug11", "bug11_slick", "bug22", "bug22_slick", "cliff15", "lick_ass", "lick_google", "lick_longer", "lick_max",
+      "lick_sewage")
 GL = ("grenadorade", "uprising", "xlarve06", "vivid")
 
 _RE_POWERUPS = re.compile(r'print ".+\^3 got the (Haste|Battle Suit|Quad Damage|Invisibility|Regeneration)!\^7\n"')
@@ -273,9 +275,8 @@ class race(minqlx.Plugin):
         elif map_name in G_ONLY:
             self.set_cvar("g_startingWeapons", "1")
             self.set_cvar("g_infiniteAmmo", "0")
-        elif map_name in BFG_FIX:
-            self.set_cvar("weapon_reload_bfg", "200")
-            self.set_cvar("g_velocity_bfg", "2000")
+        elif map_name in BFG:
+            self.set_cvar("g_startingWeapons", "257")
             self.set_cvar("g_infiniteAmmo", "1")
         elif map_name in PG:
             self.set_cvar("g_startingWeapons", "131")
@@ -291,6 +292,14 @@ class race(minqlx.Plugin):
             self.set_cvar("g_startingWeapons", "19")
             infinite = "0" if map_name in ("pornstarghost2", "mistes_acr16") else "1"
             self.set_cvar("g_infiniteAmmo", infinite)
+        elif map_name == "lick_gays":
+            self.set_cvar("g_startingWeapons", "19")
+            self.set_cvar("g_startingAmmo_rl", "3")
+            self.set_cvar("g_infiniteAmmo", "0")
+        elif map_name == "lick_girls":
+            self.set_cvar("g_startingWeapons", "19")
+            self.set_cvar("g_startingAmmo_rl", "25")
+            self.set_cvar("g_infiniteAmmo", "0")
         elif map_name == "elco_arca":
             self.set_cvar("g_startingWeapons", "19")
             self.set_cvar("g_infiniteAmmo", "0")
