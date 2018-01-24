@@ -314,11 +314,9 @@ class racemapsettings(minqlx.Plugin):
             self.set_cvar("g_infiniteAmmo", infinite)
         elif map_name == "lick_gays":
             self.set_cvar("g_startingWeapons", "19")
-            self.set_cvar("g_startingAmmo_rl", "3")
             self.set_cvar("g_infiniteAmmo", "0")
         elif map_name == "lick_girls":
             self.set_cvar("g_startingWeapons", "19")
-            self.set_cvar("g_startingAmmo_rl", "25")
             self.set_cvar("g_infiniteAmmo", "0")
         elif map_name == "elco_arca":
             self.set_cvar("g_startingWeapons", "19")
@@ -467,6 +465,10 @@ class racemapsettings(minqlx.Plugin):
             self.set_cvar("g_startingAmmo_rl", "7")
         elif map_name == "run4eg":
             self.set_cvar("g_startingAmmo_rl", "10")
+        elif map_name == "lick_gays":
+            self.set_cvar("g_startingAmmo_rl", "3")
+        elif map_name == "lick_girls":
+            self.set_cvar("g_startingAmmo_rl", "25")    
         else:
             self.set_cvar("g_startingAmmo_rl", "5")
 
