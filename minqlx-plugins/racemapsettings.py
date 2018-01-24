@@ -18,9 +18,9 @@ PK3_ROOT = "D:\Libraries\Documents\pycharmprojects\\newqlrace\\testdata"
 # Dict with default settings for .race files.
 # Settings defaulting to None will use the server's current cvar setting as their default value.
 RACE_FILE_SETTINGS_DEFAULTS = {
-    'infinite_ammo': 1,
+    'infinite_ammo': 0,
     'weapons': 3,
-    'mg_ammo': None,
+    'mg_ammo': 100,
     'sg_ammo': None,
     'gl_ammo': None,
     'rl_ammo': None,
