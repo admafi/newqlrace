@@ -64,8 +64,8 @@ class racemapsettings(minqlx.Plugin):
     G_ONLY = ["k4n", "ndql", "dfwc_xlarve", "kairos_jackson", "acc_donut", "concentration", "l1thrun", "gnj_torture4",
               "glados",
               "dfwc2017_2", "elco_eh", "elco_kab", "elco_woody", "hyper_atmospace", "dfwc2017_4"]
-    # Maps to apply bfg fix (?) on.
-    BFG_FIX = ["aa_endless"]
+    # Maps using bfg with infinite ammo.
+    BFG = ["lick_ape", "lick_revived", "lick_revived2"]
     # Maps to apply respawn loop fix on. Forces a delay between respawns.
     RESPAWN_FIX = ["cuddles_3"]
     # Maps to enable self-damage on.
@@ -108,7 +108,7 @@ class racemapsettings(minqlx.Plugin):
                 "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22",
                 "tsd_rocket",
                 "bdfcomp042", "dfwc2017_6", "dfwc04_2", "cuddles_7", "cuddles_8", "cuddles_6", "eksha_p0thunter",
-                "jolly_holiday"]
+                "jolly_holiday", "lick_shit", "lick_sux", "lick_torr"]
     # Maps to give gauntlet, mg, pg, rl and gl on.
     G_MG_PG_RL_GL = ["moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "ump1ctf5", "ump1ctf6", "ump1ctf7",
                      "ump1ctf8",
@@ -121,13 +121,14 @@ class racemapsettings(minqlx.Plugin):
     PG = ["think1", "xproject", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
           "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
           "j4n_pgb", "elco_gbparadise", "flat_pgb", "kabcorp_longknight_pgb", "mu_mpitz", "ppgb", "azyme_gb",
-          "prince_quake", "raus_egypt"]
+          "prince_quake", "raus_egypt", "lick_fudge", "lick_cells", "lick_cells2"]
     # Maps to give rl on.
     RL = ["runstolfer", "charon", "charon_bw", "kozmini1", "kozmini2", "kozmini3", "kozmini4", "kozmini5", "kozmini6",
           "kozmini7", "kozmini8", "jumpspace", "pornstarghost2", "mistes_acr16", "futs_bunker_df",
           "futs_bunker_slick_df",
           "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon",
-          "bug11", "bug11_slick", "bug22", "bug22_slick", "cliff15"]
+          "bug11", "bug11_slick", "bug22", "bug22_slick", "cliff15", "lick_ass", "lick_google", "lick_longer", "lick_max",
+          "lick_sewage"]
     # Maps to give gl on.
     GL = ["grenadorade", "uprising", "xlarve06", "vivid"]
     # Disabled maps (ie duplicate or broken maps). These can't be voted.
@@ -294,9 +295,8 @@ class racemapsettings(minqlx.Plugin):
         elif map_name in self.G_ONLY:
             self.set_cvar("g_startingWeapons", "1")
             self.set_cvar("g_infiniteAmmo", "0")
-        elif map_name in self.BFG_FIX:
-            self.set_cvar("weapon_reload_bfg", "200")
-            self.set_cvar("g_velocity_bfg", "2000")
+        elif map_name in self.BFG:
+            self.set_cvar("g_startingWeapons", "257")
             self.set_cvar("g_infiniteAmmo", "1")
         elif map_name in self.PG:
             self.set_cvar("g_startingWeapons", "131")
@@ -312,6 +312,14 @@ class racemapsettings(minqlx.Plugin):
             self.set_cvar("g_startingWeapons", "19")
             infinite = "0" if map_name in ("pornstarghost2", "mistes_acr16") else "1"
             self.set_cvar("g_infiniteAmmo", infinite)
+        elif map_name == "lick_gays":
+            self.set_cvar("g_startingWeapons", "19")
+            self.set_cvar("g_startingAmmo_rl", "3")
+            self.set_cvar("g_infiniteAmmo", "0")
+        elif map_name == "lick_girls":
+            self.set_cvar("g_startingWeapons", "19")
+            self.set_cvar("g_startingAmmo_rl", "25")
+            self.set_cvar("g_infiniteAmmo", "0")
         elif map_name == "elco_arca":
             self.set_cvar("g_startingWeapons", "19")
             self.set_cvar("g_infiniteAmmo", "0")
