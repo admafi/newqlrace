@@ -48,7 +48,7 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "df_lickfudge", "df_lickhq", "df_lickrevived", "df_lickrevived2", "df_licksux", "df_nodown",
             "df_o3jvelocity", "df_palmslane", "df_piyofunjumps", "df_qsnrun", "df_verihard", "drtrixiipro", "hangtime",
             "ingus", "marvin", "northrun", "pea_impostor", "poptart", "purpletorture", "r7_pyramid", "raveroll",
-            "sl1k_tetris_easy", "snorjumpb1", "sodomia", "timelock2", "timelock4", "vanilla_03", "vanilla_04",
+            "sl1k_tetris_easy", "snorjumpb1", "sodomia", "timelock", "timelock2", "timelock4", "vanilla_03", "vanilla_04",
             "vanilla_07", "vanilla_10", "walkathon", "weirdwild", "wraiths", "yellowtorture", "run139", "inder_inder",
             "quartz", "timelock3", "daytime", "blub", "aa_lum", "kairos_nosf", "aa_torture", "cube_torture",
             "track_comp", "track_comp_barriers", "dfru_xlarve", "track", "gl", "qportal", "heaven_or_hell", "cpu_egypt",
@@ -71,7 +71,7 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18",
             "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket",
             "bdfcomp042", "dfwc04_2", "cuddles_7", "cuddles_8", "cuddles_6", "eksha_p0thunter", "jolly_holiday", 
-            "lick_shit", "lick_sux", "lick_torr", "dfwc2017_3", "dfwc2017_5", "eastrun", "pornstar_mcposty")
+            "lick_shit", "lick_sux", "lick_torr", "dfwc2017_3", "dfwc2017_5", "eastrun", "pornstar_mcposty", "chile1", "chile3", "chile4", "chile6")
 
 G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "ump1ctf5", "ump1ctf6", "ump1ctf7", "ump1ctf8",
                  "ump3ctf1", "ump3ctf2", "ump3ctf3", "ump3ctf4", "ump3ctf5", "ump3ctf6", "ump3ctf7", "coldwarctf", "halterra1",
