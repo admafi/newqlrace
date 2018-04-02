@@ -71,7 +71,7 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18",
             "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket",
             "bdfcomp042", "dfwc04_2", "cuddles_7", "cuddles_8", "cuddles_6", "eksha_p0thunter", "jolly_holiday", 
-            "lick_shit", "lick_sux", "lick_torr", "dfwc2017_3", "dfwc2017_5", "eastrun", "pornstar_mcposty", "chile1", "chile3", "chile4", "chile6", "wsm1", "wsm2")
+            "lick_shit", "lick_sux", "lick_torr", "dfwc2017_3", "dfwc2017_5", "eastrun", "pornstar_mcposty", "chile1", "chile3", "chile4", "chile6", "wsm1", "wsm2", "wsm7")
 
 G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "ump1ctf5", "ump1ctf6", "ump1ctf7", "ump1ctf8",
                  "ump3ctf1", "ump3ctf2", "ump3ctf3", "ump3ctf4", "ump3ctf5", "ump3ctf6", "ump3ctf7", "coldwarctf", "halterra1",
@@ -81,7 +81,7 @@ G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "u
 PG = ("think1", "xproject_webas", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
       "j4n_pgb", "elco_gbparadise", "flat_pgb", "kabcorp_longknight_pgb", "mu_mpitz", "ppgb", "azyme_gb",
-      "prince_quake", "raus_egypt", "lick_fudge", "lick_cells", "lick_cells2", "bpm_run1", "bpm_run2", "wsm7")
+      "prince_quake", "raus_egypt", "lick_fudge", "lick_cells", "lick_cells2", "bpm_run1", "bpm_run2")
 RL = ("runstolfer", "charon", "charon_bw", "kozmini1", "kozmini2", "kozmini3", "kozmini4", "kozmini5", "kozmini6",
       "kozmini7", "kozmini8", "jumpspace", "pornstarghost2", "mistes_acr16", "futs_bunker_df", "futs_bunker_slick_df",
       "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon",
