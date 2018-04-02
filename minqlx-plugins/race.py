@@ -38,7 +38,7 @@ PHYSICS_STRINGS = PHYSICS_PQL_STRINGS + PHYSICS_VQL_STRINGS
 G_ONLY = (
     "k4n", "ndql", "dfwc_xlarve", "kairos_jackson", "acc_donut", "concentration", "l1thrun", "gnj_torture4", "glados",
     "dfwc2017_2", "elco_eh", "elco_kab", "elco_woody", "hyper_atmospace", "dfwc2017_4")
-BFG = ("lick_ape", "lick_revived", "lick_revived2")
+BFG = ("lick_ape", "lick_revived", "lick_revived2", "wsm3", "wsm4")
 # Fixes respawn death loops by delaying auto respawn
 RESPAWN_FIX = ("cuddles_3")
 DMFLAGS = {"odessa", "gpl_arcaon", "rdk_14_fix", "rdk_18", "rdk_18_slick", "rdk_spiral", "dfwc04_2",
@@ -71,7 +71,7 @@ G_AND_MG = ("blockworld", "caep4", "climbworld", "df_etleague", "df_extremepkr",
             "boroda", "gpl_arcaon_fix", "j4n_govno", "kabcorp_snapvan", "redblueline_combo", "rdk_14_fix", "rdk_18",
             "rdk_18_slick", "rdk_spiral", "stammer_licorice", "dark_temple", "e_penetration", "pornstar_run22", "tsd_rocket",
             "bdfcomp042", "dfwc04_2", "cuddles_7", "cuddles_8", "cuddles_6", "eksha_p0thunter", "jolly_holiday", 
-            "lick_shit", "lick_sux", "lick_torr", "dfwc2017_3", "dfwc2017_5", "eastrun", "pornstar_mcposty", "chile1", "chile3", "chile4", "chile6")
+            "lick_shit", "lick_sux", "lick_torr", "dfwc2017_3", "dfwc2017_5", "eastrun", "pornstar_mcposty", "chile1", "chile3", "chile4", "chile6", "wsm1", "wsm2")
 
 G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "ump1ctf5", "ump1ctf6", "ump1ctf7", "ump1ctf8",
                  "ump3ctf1", "ump3ctf2", "ump3ctf3", "ump3ctf4", "ump3ctf5", "ump3ctf6", "ump3ctf7", "coldwarctf", "halterra1",
@@ -81,12 +81,12 @@ G_MG_PG_RL_GL = ("moonstone", "ump1ctf1", "ump1ctf2", "ump1ctf3", "ump1ctf4", "u
 PG = ("think1", "xproject_webas", "plasmax", "wub_junk", "pgultimate", "tinyplams", "df_lickcells", "df_lickcells2",
       "mj_xlarve", "huntetris", "modcomp019", "creed", "prince_quake2", "bdfcomp041", "r7_godz", "r7_noobclimb",
       "j4n_pgb", "elco_gbparadise", "flat_pgb", "kabcorp_longknight_pgb", "mu_mpitz", "ppgb", "azyme_gb",
-      "prince_quake", "raus_egypt", "lick_fudge", "lick_cells", "lick_cells2", "bpm_run1", "bpm_run2")
+      "prince_quake", "raus_egypt", "lick_fudge", "lick_cells", "lick_cells2", "bpm_run1", "bpm_run2", "wsm7")
 RL = ("runstolfer", "charon", "charon_bw", "kozmini1", "kozmini2", "kozmini3", "kozmini4", "kozmini5", "kozmini6",
       "kozmini7", "kozmini8", "jumpspace", "pornstarghost2", "mistes_acr16", "futs_bunker_df", "futs_bunker_slick_df",
       "mu_gp", "mu_gpl_slick", "wdc03", "sdc30", "cityrocket_fixed", "inder_rocketrun", "killua_hykon",
       "bug11", "bug11_slick", "bug22", "bug22_slick", "cliff15", "lick_ass", "lick_google", "lick_longer", "lick_max",
-      "lick_sewage", "dfwc2017_7")
+      "lick_sewage", "dfwc2017_7", "wsm8")
 GL = ("grenadorade", "uprising", "xlarve06", "vivid")
 
 _RE_POWERUPS = re.compile(r'print ".+\^3 got the (Haste|Battle Suit|Quad Damage|Invisibility|Regeneration)!\^7\n"')
